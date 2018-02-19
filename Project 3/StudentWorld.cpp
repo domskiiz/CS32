@@ -19,10 +19,10 @@ StudentWorld::StudentWorld(string assetDir)
 int StudentWorld::init()
 {
     for (int i = 0; i < 30; i++) {
-        m_actors.push_back(new Star);
+        m_actors.push_back(new Star(this));
         m_numActors++;
     }
-    m_nachBlaster = new NachenBlaster;
+    m_nachBlaster = new NachenBlaster(this);
     m_numActors++;
     return GWSTATUS_CONTINUE_GAME;
 }

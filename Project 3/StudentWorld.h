@@ -2,10 +2,11 @@
 #define STUDENTWORLD_H_
 
 #include "GameWorld.h"
-#include "Actor.h"
 #include <string>
 #include <vector>
 
+class Actor;
+class NachenBlaster;
 
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
