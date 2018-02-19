@@ -1,6 +1,7 @@
 #include "Actor.h"
 #include "StudentWorld.h"
 #include "GameConstants.h"
+#include <iostream>
 
 const int       DEPTH_STAR = 3;
 const int       DIRECTION_RIGHT = 0;
@@ -43,10 +44,10 @@ StudentWorld* Actor::getWorld() const
 // STAR IMPLEMENTATION //
 /////////////////////////
 
-Star::Star(StudentWorld* world)
+Star::Star(int x, int y, StudentWorld* world)
 : Actor(IID_STAR,
-        randInt(0, VIEW_WIDTH - 1),
-        randInt(0, VIEW_HEIGHT - 1),
+        x,
+        y,
         DIRECTION_RIGHT,
         (randInt(5, 50) / 100.0),
         DEPTH_STAR,
@@ -55,6 +56,7 @@ Star::Star(StudentWorld* world)
 
 Star::~Star()
 {
+    std::cout << "Bai star" << std::endl;
 }
 
 void Star::doSomething()
@@ -84,6 +86,7 @@ NachenBlaster::NachenBlaster(StudentWorld* world)
 
 NachenBlaster::~NachenBlaster()
 {
+    std::cout << "Bai nach" << std::endl;
 }
 
 void NachenBlaster::doSomething()

@@ -23,7 +23,7 @@ private:
 class Star: public Actor
 {
 public:
-    Star(StudentWorld* world);
+    Star(int x, int y, StudentWorld* world);
     virtual ~Star();
     virtual void doSomething();
 };
