@@ -29,6 +29,7 @@ public:
 private:
     std::vector<Actor*> m_actors;
     int m_numActors;
+    NachenBlaster* m_nachBlaster;
 };
 
 #endif // STUDENTWORLD_H_
