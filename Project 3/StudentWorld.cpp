@@ -1,5 +1,6 @@
 #include "StudentWorld.h"
 #include "GameConstants.h"
+#include "Actor.h"
 #include <string>
 using namespace std;
 
@@ -11,12 +12,16 @@ GameWorld* createStudentWorld(string assetDir)
 // Students:  Add code to this file, StudentWorld.h, Actor.h and Actor.cpp
 
 StudentWorld::StudentWorld(string assetDir)
-: GameWorld(assetDir)
+: GameWorld(assetDir), m_numActors(0)
 {
 }
 
 int StudentWorld::init()
 {
+    for (int i = 0; i < 30; i++) {
+        m_actors.push_back(new Star);
+        m_numActors++;
+    }
     return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -30,4 +35,9 @@ int StudentWorld::move()
 
 void StudentWorld::cleanUp()
 {
+    for (int i = 0; i < m_numActors; i++) {
+        delete m_actors[i];
+        m_actors.pop_back();
+    }
+    m_numActors = 0;
 }
