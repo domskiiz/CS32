@@ -10,6 +10,7 @@ class Actor: public GraphObject
 {
 public:
     Actor(int imageId, int startX, int startY, int startDirection, double size, int depth, StudentWorld* world);
+    virtual ~Actor();
     virtual void doSomething() = 0;
     bool isDead() const;
     void setDead();
@@ -23,6 +24,7 @@ class Star: public Actor
 {
 public:
     Star(StudentWorld* world);
+    virtual ~Star();
     virtual void doSomething();
 };
 
@@ -30,6 +32,7 @@ class NachenBlaster: public Actor
 {
 public:
     NachenBlaster(StudentWorld* world);
+    virtual ~NachenBlaster();
     virtual void doSomething();
 private:
     int m_hp;

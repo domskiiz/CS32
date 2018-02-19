@@ -19,6 +19,10 @@ Actor::Actor(int imageId, int startX, int startY, int startDirection, double siz
     m_world = world;
 }
 
+Actor::~Actor()
+{
+}
+
 bool Actor::isDead() const
 {
     return m_dead;
@@ -49,6 +53,10 @@ Star::Star(StudentWorld* world)
         world)
 { }
 
+Star::~Star()
+{
+}
+
 void Star::doSomething()
 {
     moveTo(getX()-1, getY());     // move one pixel to the left
@@ -69,7 +77,14 @@ NachenBlaster::NachenBlaster(StudentWorld* world)
         NACHENBLASTER_SIZE,
         NACHENBLASTER_DEPTH,
         world)
-{ }
+{
+    m_hp = 50;
+    m_cabbageEnergyPoints = 30;
+}
+
+NachenBlaster::~NachenBlaster()
+{
+}
 
 void NachenBlaster::doSomething()
 {
@@ -104,6 +119,8 @@ void NachenBlaster::doSomething()
                 break;
         }
     }
+    if (m_cabbageEnergyPoints < 30)
+        m_cabbageEnergyPoints++;
 }
 
 

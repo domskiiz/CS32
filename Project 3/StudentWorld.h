@@ -14,6 +14,7 @@ class StudentWorld : public GameWorld
 {
 public:
     StudentWorld(std::string assetDir);
+    ~StudentWorld();
     // Responsible for constructing a representation of the current level in your
     // StudentWorld object and populating it with initial objects (e.g., stars),
     // using one or more data structures that you come up with.
