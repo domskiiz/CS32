@@ -82,3 +82,9 @@ void StudentWorld::cleanUp()
     delete m_nachBlaster;
     m_numActors = 0;
 }
+
+void StudentWorld::addCabbage(int x, int y)
+{
+    m_actors.push_back(new Cabbage(x, y, this));
+    m_numActors++;
+}

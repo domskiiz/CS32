@@ -11,6 +11,9 @@ const int       NACHENBLASTER_Y = 128;
 const double    NACHENBLASTER_SIZE = 1.0;
 const int       NACHENBLASTER_DEPTH = 0;
 
+const int       CABBAGE_DEPTH = 1;
+const double    CABBAGE_SIZE = 0.5;
+
 // Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
 
 Actor::Actor(int imageId, int startX, int startY, int startDirection, double size, int depth, StudentWorld* world)
@@ -67,6 +70,38 @@ void Star::doSomething()
     }
 }
 
+////////////////////////////
+// CABBAGE IMPLEMENTATION //
+////////////////////////////
+Cabbage::Cabbage(int x, int y, StudentWorld* world)
+: Actor(IID_CABBAGE,
+        x,
+        y,
+        DIRECTION_RIGHT,
+        CABBAGE_SIZE,
+        CABBAGE_DEPTH,
+        world)
+{
+    m_direction = 0;
+}
+
+Cabbage::~Cabbage()
+{
+    std::cout << "Bai cabbs" << std::endl;
+}
+
+void Cabbage::doSomething()
+{
+    if (isDead()) return;
+    if (getX() >= VIEW_WIDTH) {
+        setDead();
+        return;
+    }
+    moveTo(getX() + 8, getY());
+    m_direction += 20;
+    setDirection(m_direction);
+}
+
 //////////////////////////////////
 // NACHENBLASTER IMPLEMENTATION //
 //////////////////////////////////
@@ -117,7 +152,10 @@ void NachenBlaster::doSomething()
                     break;
                 } else break;
             case KEY_PRESS_SPACE:
-                break;
+                if (m_cabbageEnergyPoints >= 5) {
+                    getWorld()->addCabbage(getX() + 12, getY());
+                    m_cabbageEnergyPoints -= 5;
+                }
             case KEY_PRESS_TAB:
                 break;
         }

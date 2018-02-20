@@ -39,5 +39,15 @@ private:
     int m_cabbageEnergyPoints;
 };
 
+class Cabbage: public Actor
+{
+public:
+    Cabbage(int x, int y, StudentWorld* world);
+    virtual ~Cabbage();
+    virtual void doSomething();
+private:
+    int m_direction;
+};
+
 
 #endif // ACTOR_H_
