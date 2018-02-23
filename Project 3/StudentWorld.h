@@ -23,6 +23,8 @@ public:
 private:
     std::vector<Actor*> m_actors;
     int m_numActors;
+    int m_aliensDestroyed;
+    int m_numAliens;
     NachenBlaster* m_nachBlaster;
 };
 

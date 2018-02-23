@@ -12,7 +12,7 @@ GameWorld* createStudentWorld(string assetDir)
 // Students:  Add code to this file, StudentWorld.h, Actor.h and Actor.cpp
 
 StudentWorld::StudentWorld(string assetDir)
-: GameWorld(assetDir), m_numActors(0)
+: GameWorld(assetDir), m_numActors(0), m_aliensDestroyed(0)
 {
 }
 
@@ -63,8 +63,19 @@ int StudentWorld::move()
             it++;
         }
     }
+    // introduce stars
     if (randInt(1, 15) == 15) {
         m_actors.push_back(new Star(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this));
+        m_numActors++;
+    }
+    
+    // place aliens
+    int aliensMustBeDestroyed = 6 + (4 * getLevel());
+    int maximumAliensOnScreen = 4 + (0.5 * getLevel());
+    int remainingShipsToBeDestroyed = aliensMustBeDestroyed - m_aliensDestroyed;
+    if (m_numAliens < min(maximumAliensOnScreen, remainingShipsToBeDestroyed)) {
+        m_actors.push_back(new Smallgon(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this));
+        m_numAliens++;
         m_numActors++;
     }
 
@@ -79,7 +90,10 @@ void StudentWorld::cleanUp()
         delete *it;
         it = m_actors.erase(it);
     }
-    delete m_nachBlaster;
+    if (m_nachBlaster != nullptr) {
+        delete m_nachBlaster;
+        m_nachBlaster = nullptr;
+    }
     m_numActors = 0;
 }
 

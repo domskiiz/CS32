@@ -1,7 +1,6 @@
 #include "Actor.h"
 #include "StudentWorld.h"
 #include "GameConstants.h"
-#include <iostream>
 
 const int       DEPTH_STAR = 3;
 const int       DIRECTION_RIGHT = 0;
@@ -13,6 +12,9 @@ const int       NACHENBLASTER_DEPTH = 0;
 
 const int       CABBAGE_DEPTH = 1;
 const double    CABBAGE_SIZE = 0.5;
+
+const double    ALIEN_SIZE = 1.5;
+const int       ALIEN_DEPTH = 1;
 
 // Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
 
@@ -59,7 +61,7 @@ Star::Star(int x, int y, StudentWorld* world)
 
 Star::~Star()
 {
-    std::cout << "Bai star" << std::endl;
+    // std::cout << "Bai star" << std::endl;
 }
 
 void Star::doSomething()
@@ -69,6 +71,7 @@ void Star::doSomething()
         setDead();
     }
 }
+
 
 ////////////////////////////
 // CABBAGE IMPLEMENTATION //
@@ -87,7 +90,7 @@ Cabbage::Cabbage(int x, int y, StudentWorld* world)
 
 Cabbage::~Cabbage()
 {
-    std::cout << "Bai cabbs" << std::endl;
+    // std::cout << "Bai cabbs" << std::endl;
 }
 
 void Cabbage::doSomething()
@@ -121,7 +124,7 @@ NachenBlaster::NachenBlaster(StudentWorld* world)
 
 NachenBlaster::~NachenBlaster()
 {
-    std::cout << "Bai nach" << std::endl;
+    // std::cout << "Bai nach" << std::endl;
 }
 
 void NachenBlaster::doSomething()
@@ -154,6 +157,7 @@ void NachenBlaster::doSomething()
             case KEY_PRESS_SPACE:
                 if (m_cabbageEnergyPoints >= 5) {
                     getWorld()->addCabbage(getX() + 12, getY());
+                    getWorld()->playSound(SOUND_PLAYER_SHOOT);
                     m_cabbageEnergyPoints -= 5;
                 }
             case KEY_PRESS_TAB:
@@ -164,4 +168,43 @@ void NachenBlaster::doSomething()
         m_cabbageEnergyPoints++;
 }
 
+//////////////////////////
+// ALIEN IMPLEMENTATION //
+//////////////////////////
+Alien::Alien(int id, int x, int y, StudentWorld* world)
+: Actor(id,
+        x,
+        y,
+        DIRECTION_RIGHT,
+        ALIEN_SIZE,
+        ALIEN_DEPTH,
+        world)
+{
+    m_hp = 5 * (1 + (getWorld()->getLevel() - 1) * .1);
+}
 
+Alien::~Alien()
+{ }
+
+
+/////////////////////////////
+// SMALLGON IMPLEMENTATION //
+/////////////////////////////
+Smallgon::Smallgon(int x, int y, StudentWorld* world)
+: Alien(IID_SMALLGON, x, y,world)
+{ }
+
+Smallgon::~Smallgon()
+{
+    // std::cout << "Bai smallgon" << std::endl;
+}
+
+void Smallgon::doSomething()
+{
+    if (isDead()) return;
+    if (getX() < 0) {
+        setDead();
+        return;
+    }
+    // choose flight path
+}

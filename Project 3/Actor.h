@@ -50,4 +50,27 @@ private:
 };
 
 
+
+class Alien: public Actor
+{
+public:
+    Alien(int id, int x, int y, StudentWorld* world);
+    virtual ~Alien();
+    virtual void doSomething() = 0;
+private:
+    int m_hp;
+    int m_flightPlan;
+    double m_travelSpeed;
+};
+
+class Smallgon: public Alien
+{
+public:
+    Smallgon(int x, int y, StudentWorld* world);
+    virtual ~Smallgon();
+    virtual void doSomething();
+private:
+
+};
+
 #endif // ACTOR_H_
