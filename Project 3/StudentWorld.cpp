@@ -74,7 +74,7 @@ int StudentWorld::move()
     int maximumAliensOnScreen = 4 + (0.5 * getLevel());
     int remainingShipsToBeDestroyed = aliensMustBeDestroyed - m_aliensDestroyed;
     if (m_numAliens < min(maximumAliensOnScreen, remainingShipsToBeDestroyed)) {
-        m_actors.push_back(new Smoregon(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this));
+        m_actors.push_back(new Smallgon(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this));
         m_numAliens++;
         m_numActors++;
     }
@@ -101,4 +101,9 @@ void StudentWorld::addCabbage(int x, int y)
 {
     m_actors.push_back(new Cabbage(x, y, this));
     m_numActors++;
+}
+
+NachenBlaster* StudentWorld::getNachBlaster() const
+{
+    return m_nachBlaster;
 }

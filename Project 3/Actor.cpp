@@ -22,7 +22,24 @@ const int       FLIGHT_LEFT = 0;
 const int       FLIGHT_UP_LEFT = 1;
 const int       FLIGHT_DOWN_LEFT = 2;
 
-// Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
+// helper functions
+double euclideanDistance(int x1, int x2, int y1, int y2)
+{
+    double x = x1 - x2;
+    double y = y1 - y2;
+    return sqrt(pow(x, 2) + pow(y, 2));
+}
+
+bool collisionOccurred(Actor* one, Actor* two)
+{
+    return (euclideanDistance(one->getX(), two->getX(),
+                              one->getY(), two->getY())
+            < 0.75 * (one->getRadius() + two->getRadius()));
+}
+
+//////////////////////////
+// ACTOR IMPLEMENTATION //
+//////////////////////////
 
 Actor::Actor(int imageId, int startX, int startY, int startDirection, double size, int depth, StudentWorld* world)
 : GraphObject(imageId, startX, startY, startDirection, size, depth)
@@ -130,7 +147,7 @@ NachenBlaster::NachenBlaster(StudentWorld* world)
 
 NachenBlaster::~NachenBlaster()
 {
-    // std::cout << "Bai nach" << std::endl;
+     std::cout << "Bai nach" << std::endl;
 }
 
 void NachenBlaster::doSomething()
@@ -258,7 +275,13 @@ void Smallgon::doSomething()
         setFlightPlan(randInt(1, 32));
     }
     // check to fire turnip
-    
+    if (collisionOccurred(this, getWorld()->getNachBlaster())) {
+        // suffer damage for nachblaster
+        setDead();
+        // increase score by 250
+        getWorld()->playSound(SOUND_DEATH);
+        // explosion
+    }
     // move on screen
     switch(getFlightDirection()) {
         case FLIGHT_LEFT:
@@ -309,7 +332,13 @@ void Smoregon::doSomething()
         setFlightPlan(randInt(1, 32));
     }
     // check to fire turnip
-    
+    if (collisionOccurred(this, getWorld()->getNachBlaster())) {
+        // suffer damage for nachblaster
+        setDead();
+        // increase score by 250
+        getWorld()->playSound(SOUND_DEATH);
+        // explosion
+    }
     // move on screen
     switch(getFlightDirection()) {
         case FLIGHT_LEFT:

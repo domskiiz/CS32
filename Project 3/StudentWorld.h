@@ -18,6 +18,7 @@ public:
     virtual int init();
     virtual int move();
     virtual void cleanUp();
+    NachenBlaster* getNachBlaster() const;
     void addCabbage(int x, int y);
 
 private:
