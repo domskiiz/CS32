@@ -54,12 +54,19 @@ private:
 class Alien: public Actor
 {
 public:
-    Alien(int id, int x, int y, StudentWorld* world);
+    Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPlan, double travelSpeed);
     virtual ~Alien();
     virtual void doSomething() = 0;
+    double getHp() const;
+    void setFlightPlan(int length);
+    int getFlightPlan() const;
+    void setFlightDirection(int dir);
+    int getFlightDirection() const;
+    double getTravelSpeed() const;
 private:
-    int m_hp;
+    double m_hp;
     int m_flightPlan;
+    int m_flightDirection;
     double m_travelSpeed;
 };
 
@@ -69,7 +76,6 @@ public:
     Smallgon(int x, int y, StudentWorld* world);
     virtual ~Smallgon();
     virtual void doSomething();
-private:
 
 };
 

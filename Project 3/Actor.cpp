@@ -1,20 +1,26 @@
 #include "Actor.h"
 #include "StudentWorld.h"
 #include "GameConstants.h"
+#include <iostream>
+
+const int       DIRECTION_RIGHT = 0;
 
 const int       DEPTH_STAR = 3;
-const int       DIRECTION_RIGHT = 0;
 
 const int       NACHENBLASTER_X = 0;
 const int       NACHENBLASTER_Y = 128;
 const double    NACHENBLASTER_SIZE = 1.0;
 const int       NACHENBLASTER_DEPTH = 0;
 
-const int       CABBAGE_DEPTH = 1;
 const double    CABBAGE_SIZE = 0.5;
+const int       CABBAGE_DEPTH = 1;
 
 const double    ALIEN_SIZE = 1.5;
 const int       ALIEN_DEPTH = 1;
+
+const int       FLIGHT_LEFT = 0;
+const int       FLIGHT_UP_LEFT = 1;
+const int       FLIGHT_DOWN_LEFT = 2;
 
 // Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
 
@@ -61,7 +67,7 @@ Star::Star(int x, int y, StudentWorld* world)
 
 Star::~Star()
 {
-    // std::cout << "Bai star" << std::endl;
+     std::cout << "Bai star" << std::endl;
 }
 
 void Star::doSomething()
@@ -90,7 +96,7 @@ Cabbage::Cabbage(int x, int y, StudentWorld* world)
 
 Cabbage::~Cabbage()
 {
-    // std::cout << "Bai cabbs" << std::endl;
+     std::cout << "Bai cabbs" << std::endl;
 }
 
 void Cabbage::doSomething()
@@ -171,7 +177,7 @@ void NachenBlaster::doSomething()
 //////////////////////////
 // ALIEN IMPLEMENTATION //
 //////////////////////////
-Alien::Alien(int id, int x, int y, StudentWorld* world)
+Alien::Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPlan, double travelSpeed)
 : Actor(id,
         x,
         y,
@@ -181,22 +187,53 @@ Alien::Alien(int id, int x, int y, StudentWorld* world)
         world)
 {
     m_hp = 5 * (1 + (getWorld()->getLevel() - 1) * .1);
+    m_flightPlan = flightPlan;
+    m_travelSpeed = travelSpeed;
 }
 
 Alien::~Alien()
 { }
 
+int Alien::getFlightPlan() const
+{
+    return m_flightPlan;
+}
+
+void Alien::setFlightPlan(int length)
+{
+    m_flightPlan = length;
+}
+
+double Alien::getHp() const
+{
+    return m_hp;
+}
+
+void Alien::setFlightDirection(int dir)
+{
+    m_flightDirection = dir;
+}
+
+int Alien::getFlightDirection() const
+{
+    return m_flightDirection;
+}
+
+double Alien::getTravelSpeed() const
+{
+    return m_travelSpeed;
+}
 
 /////////////////////////////
 // SMALLGON IMPLEMENTATION //
 /////////////////////////////
 Smallgon::Smallgon(int x, int y, StudentWorld* world)
-: Alien(IID_SMALLGON, x, y,world)
+: Alien(IID_SMALLGON, x, y, world, 0, 0, 2.0)           // fix to be correct hp?
 { }
 
 Smallgon::~Smallgon()
 {
-    // std::cout << "Bai smallgon" << std::endl;
+     std::cout << "Bai smallgon" << std::endl;
 }
 
 void Smallgon::doSomething()
@@ -206,5 +243,31 @@ void Smallgon::doSomething()
         setDead();
         return;
     }
-    // choose flight path
+    // setting new travel directions
+    if (getY() >= VIEW_HEIGHT - 1) {
+        setFlightDirection(FLIGHT_DOWN_LEFT);
+    } else if (getY() <= 0) {
+        setFlightDirection(FLIGHT_UP_LEFT);
+    } else if (getFlightPlan() == 0) {
+        setFlightDirection(randInt(0, 2));
+        setFlightPlan(randInt(1, 32));
+    }
+    // check to fire turnip
+    
+    // move on screen
+    switch(getFlightDirection()) {
+        case FLIGHT_LEFT:
+            moveTo(getX() - getTravelSpeed(), getY());
+            break;
+        case FLIGHT_UP_LEFT:
+            moveTo(getX() - getTravelSpeed(), getY() + getTravelSpeed());
+            break;
+        case FLIGHT_DOWN_LEFT:
+            moveTo(getX() - getTravelSpeed(), getY() - getTravelSpeed());
+            break;
+        default:
+            break;
+    }
+    
+    // check if collided
 }
