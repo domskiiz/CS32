@@ -6,9 +6,8 @@
 #include <vector>
 
 class Actor;
+class Goodie;
 class NachenBlaster;
-
-// Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
 class StudentWorld : public GameWorld
 {
@@ -25,6 +24,7 @@ public:
     void decrementNumAliens();
     bool hitNachBlaster(Actor* colliding, int hp);
     bool hitDamageableActors(Actor* colliding, int hp);
+    bool goodieReceived(Goodie* goodie);
     bool shipCollision(Actor* alien, NachenBlaster* nach);
 private:
     std::vector<Actor*> m_actors;

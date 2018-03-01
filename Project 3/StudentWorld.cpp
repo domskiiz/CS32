@@ -107,7 +107,9 @@ int StudentWorld::move()
     oss << setw(10) << "Health: " << (m_nachBlaster->getHP() * 2) << "%";
     oss << setw(10) << "Score: " << getScore();
     oss << setw(10) << "Level: " << getLevel();
-    oss << setw(15) << "Cabbages: " << m_nachBlaster->getCabbagePercent() << "%";
+    oss << setw(12) << "Cabbages: " << m_nachBlaster->getCabbagePercent() << "%";
+    oss << setw(12
+            ) << "Torpedoes: " << m_nachBlaster->getNumTorpedoes();
     setGameStatText(oss.str());
     
     return GWSTATUS_CONTINUE_GAME;
@@ -171,6 +173,17 @@ bool StudentWorld::hitNachBlaster(Actor* colliding, int hp)
     return false;
 }
 
+bool StudentWorld::goodieReceived(Goodie* goodie)
+{
+    if (collisionOccurred(goodie, m_nachBlaster)) {
+        increaseScore(100);
+        goodie->setDead();
+        goodie->specialized();
+        playSound(SOUND_GOODIE);
+        return true;
+    }
+    return false;
+}
 
 bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
 {
@@ -181,6 +194,7 @@ bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
             if ((*p)->getHP() < 0) {
                 increaseScore((*p)->getScore());
                 (*p)->setDead();
+                (*p)->dropSomething();
                 incrementNumAliensDestroyed();
                 decrementNumAliens();
                 playSound(SOUND_DEATH);
@@ -199,7 +213,11 @@ bool StudentWorld::shipCollision(Actor* alien, NachenBlaster* nach)
 {
     if (collisionOccurred(alien, nach)) {
         m_nachBlaster->sufferDamage(10);
+        if (m_nachBlaster->getHP() <= 0)
+            m_nachBlaster->setDead();
         alien->setDead();
+        alien->dropSomething();
+        
         increaseScore(alien->getScore());
         playSound(SOUND_DEATH);
         incrementNumAliensDestroyed();
@@ -209,4 +227,3 @@ bool StudentWorld::shipCollision(Actor* alien, NachenBlaster* nach)
     }
     return false;
 }
-

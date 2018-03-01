@@ -38,12 +38,15 @@ const int       SMALLGON_SCORE = 250;
 const int       SMOREGON_SCORE = 250;
 const int       SNAGGLEGON_SCORE = 1000;
 
+// GOODIE CONST
+const double    GOODIE_SIZE = 0.5;
+const int       GOODIE_DEPTH = 1;
 
 //////////////////////////
 // ACTOR IMPLEMENTATION //
 //////////////////////////
 
-Actor::Actor(int imageId, int startX, int startY, int startDirection, double size, int depth, StudentWorld* world, bool damageable)
+Actor::Actor(int imageId, double startX, double startY, int startDirection, double size, int depth, StudentWorld* world, bool damageable)
 : GraphObject(imageId, startX, startY, startDirection, size, depth)
 {
     m_dead = false;
@@ -90,7 +93,8 @@ int Actor::getScore() const
     return 0;
 }
 
-
+void Actor::dropSomething()
+{ }
 
 /////////////////////////
 // STAR IMPLEMENTATION //
@@ -301,6 +305,7 @@ NachenBlaster::NachenBlaster(StudentWorld* world)
 {
     m_hp = 50;
     m_cabbageEnergyPoints = 30;
+    m_nachTorpedoes = 0;
 }
 
 NachenBlaster::~NachenBlaster()
@@ -340,7 +345,11 @@ void NachenBlaster::doSomething()
                     m_cabbageEnergyPoints -= 5;
                 }
             case KEY_PRESS_TAB:
-                break;
+                if (m_nachTorpedoes > 0) {
+                    getWorld()->addActor(new NachTorpedo(getX() + 12, getY(), getWorld()));
+                    decTorpedoes();
+                    getWorld()->playSound(SOUND_TORPEDO);
+                }
         }
     }
     if (m_cabbageEnergyPoints < 30)
@@ -352,6 +361,16 @@ void NachenBlaster::sufferDamage(int hp)
     m_hp -= hp;
 }
 
+void NachenBlaster::increaseHP(int hp)
+{
+    if (getHP() + hp <= 50) {
+        m_hp += hp;
+    } else {
+        int add = 50 - getHP();
+        m_hp+= add;
+    }
+}
+
 int NachenBlaster::getHP() const
 {
     return m_hp;
@@ -361,6 +380,22 @@ int NachenBlaster::getCabbagePercent() const
 {
     return (m_cabbageEnergyPoints / 30.0) * 100;
 }
+
+int NachenBlaster::getNumTorpedoes() const
+{
+    return m_nachTorpedoes;
+}
+
+void NachenBlaster::setNumTorpedoes(int num)
+{
+    m_nachTorpedoes += num;
+}
+
+void NachenBlaster::decTorpedoes()
+{
+    m_nachTorpedoes--;
+}
+
 //////////////////////////
 // ALIEN IMPLEMENTATION //
 //////////////////////////
@@ -546,6 +581,18 @@ void Smoregon::specializedAttack()
     }
 }
 
+void Smoregon::dropSomething()
+{
+    int probabilityDrop = randInt(1, 3);
+    int probabilityKind = randInt(1, 2);
+    if (probabilityDrop == 1) {
+        if (probabilityKind == 1)
+            getWorld()->addActor(new RepairGoodie(getX(), getY(), getWorld()));
+        else
+            getWorld()->addActor(new TorpedoGoodie(getX(), getY(), getWorld()));
+    }
+}
+
 
 
 ///////////////////////////////
@@ -573,6 +620,85 @@ void Snagglegon::specializedAttack()
             return;
         }
     }
+}
+
+void Snagglegon::dropSomething()
+{
+    int probabilityDrop = randInt(1, 6);
+    if (probabilityDrop == 1) {
+        getWorld()->addActor(new ExtraLifeGoodie(getX(), getY(), getWorld()));
+    }
+}
+
+
+///////////////////////////
+// GOODIE IMPLEMENTATION //
+///////////////////////////
+Goodie::Goodie(int x, int y, StudentWorld* world, int id)
+:Actor(id,
+       x,
+       y,
+       DIRECTION_RIGHT,
+       GOODIE_SIZE,
+       GOODIE_DEPTH,
+       world,
+       false)
+{ }
+
+Goodie::~Goodie()
+{ }
+
+void Goodie::doSomething()
+{
+    if (isDead()) return;
+    if (getX() < 0 || getY() < 0) {
+        setDead();
+        return;
+    }
+    if (getWorld()->goodieReceived(this))
+        return;
+    moveTo(getX() - 0.75, getY() - 0.75);
+    if (getWorld()->goodieReceived(this))
+        return;
+}
+
+void Goodie::specialized()
+{ }
+
+ExtraLifeGoodie::ExtraLifeGoodie(int x, int y, StudentWorld* world)
+:Goodie(x, y, world, IID_LIFE_GOODIE)
+{ }
+
+ExtraLifeGoodie::~ExtraLifeGoodie()
+{ }
+
+void ExtraLifeGoodie::specialized()
+{
+    getWorld()->incLives();
+}
+
+RepairGoodie::RepairGoodie(int x, int y, StudentWorld* world)
+:Goodie(x, y, world, IID_REPAIR_GOODIE)
+{ }
+
+RepairGoodie::~RepairGoodie()
+{ }
+
+void RepairGoodie::specialized()
+{
+    getWorld()->getNachBlaster()->increaseHP(10);
+}
+
+TorpedoGoodie::TorpedoGoodie(int x, int y, StudentWorld* world)
+:Goodie(x, y, world, IID_TORPEDO_GOODIE)
+{ }
+
+TorpedoGoodie::~TorpedoGoodie()
+{ }
+
+void TorpedoGoodie::specialized()
+{
+    getWorld()->getNachBlaster()->setNumTorpedoes(5);
 }
 
 
