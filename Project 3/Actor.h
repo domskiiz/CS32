@@ -76,9 +76,10 @@ public:
     int getFlightPlan() const;
     void setFlightDirection(int dir);
     int getFlightDirection() const;
-    double getTravelSpeed() const;
     void decrementFlight();
+    double getTravelSpeed() const;
     void sufferDamage(int hp);
+    virtual void setHP(int hp);
 private:
     double m_hp;
     int m_flightPlan;

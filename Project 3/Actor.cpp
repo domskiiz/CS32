@@ -90,9 +90,7 @@ Star::Star(int x, int y, StudentWorld* world)
 { }
 
 Star::~Star()
-{
-     std::cout << "Bai star" << std::endl;
-}
+{ }
 
 void Star::doSomething()
 {
@@ -120,9 +118,7 @@ Explosion::Explosion(int x, int y, StudentWorld* world)
 }
 
 Explosion::~Explosion()
-{
-    std::cout << "Bai EXPLode" << std::endl;
-}
+{ }
 
 void Explosion::doSomething()
 {
@@ -151,9 +147,7 @@ Cabbage::Cabbage(int x, int y, StudentWorld* world)
 }
 
 Cabbage::~Cabbage()
-{
-     std::cout << "Bai cabbs" << std::endl;
-}
+{ }
 
 void Cabbage::doSomething()
 {
@@ -188,9 +182,7 @@ NachenBlaster::NachenBlaster(StudentWorld* world)
 }
 
 NachenBlaster::~NachenBlaster()
-{
-     std::cout << "Bai nach" << std::endl;
-}
+{ }
 
 void NachenBlaster::doSomething()
 {
@@ -256,7 +248,6 @@ Alien::Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPla
         world,
         true)
 {
-    m_hp = 5 * (1 + (getWorld()->getLevel() - 1) * .1);
     m_flightPlan = flightPlan;
     m_travelSpeed = travelSpeed;
 }
@@ -329,6 +320,12 @@ int Alien::getHP() const
     return m_hp;
 }
 
+void Alien::setHP(int hp)
+{
+    m_hp = hp;
+}
+
+
 void Alien::setFlightDirection(int dir)
 {
     m_flightDirection = dir;
@@ -354,12 +351,12 @@ void Alien::sufferDamage(int hp)
 /////////////////////////////
 Smallgon::Smallgon(int x, int y, StudentWorld* world)
 : Alien(IID_SMALLGON, x, y, world, 0, 0, 2.0)           // fix to be correct hp?
-{ }
+{
+    setHP(5 * (1 + (getWorld()->getLevel() - 1) * .1));
+}
 
 Smallgon::~Smallgon()
-{
-     std::cout << "Bai smallgon" << std::endl;
-}
+{ }
 
 
 
@@ -368,12 +365,12 @@ Smallgon::~Smallgon()
 /////////////////////////////
 Smoregon::Smoregon(int x, int y, StudentWorld* world)
 : Alien(IID_SMOREGON, x, y, world, 0, 0, 2.0)           // fix to be correct hp?
-{ }
+{
+    setHP(5 * (1 + (getWorld()->getLevel() - 1) * .1));
+}
 
 Smoregon::~Smoregon()
-{
-    std::cout << "Bai smoregon" << std::endl;
-}
+{ }
 
 
 ///////////////////////////////
@@ -381,11 +378,11 @@ Smoregon::~Smoregon()
 ///////////////////////////////
 Snagglegon::Snagglegon(int x, int y, StudentWorld* world)
 : Alien(IID_SNAGGLEGON, x, y, world, 0, 0, 1.75)           // fix to be correct hp?
-{ }
+{
+    setHP(10 * (1 + (getWorld()->getLevel() - 1) * .1));
+}
 
 Snagglegon::~Snagglegon()
-{
-    std::cout << "Bai snaggle" << std::endl;
-}
+{ }
 
 

@@ -38,10 +38,8 @@ StudentWorld::~StudentWorld()
 
 int StudentWorld::init()
 {
-    for (int i = 0; i < 30; i++) {
-        m_actors.push_back(new Star(randInt(0, VIEW_WIDTH - 1), randInt(0, VIEW_HEIGHT - 1), this));
-        m_numActors++;
-    }
+    for (int i = 0; i < 30; i++)
+        addActor(new Star(randInt(0, VIEW_WIDTH - 1), randInt(0, VIEW_HEIGHT - 1), this));
     m_nachBlaster = new NachenBlaster(this);
     m_numActors++;
     return GWSTATUS_CONTINUE_GAME;
@@ -49,6 +47,8 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
+    int aliensMustBeDestroyed = 6 + (4 * getLevel());
+    
     // for each actor, do something
     for (int i = 0; i < m_numActors; i++) {
         Actor* actor;
@@ -57,6 +57,8 @@ int StudentWorld::move()
             actor->doSomething();
         if (m_nachBlaster->isDead())
             return GWSTATUS_PLAYER_DIED;
+        if (m_aliensDestroyed == aliensMustBeDestroyed)
+            return GWSTATUS_FINISHED_LEVEL;
     }
     // remove dead actors
     vector<Actor*>::iterator it;
@@ -71,15 +73,14 @@ int StudentWorld::move()
         }
     }
     // introduce stars
-    if (randInt(1, 15) == 15) {
-        m_actors.push_back(new Star(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this));
-        m_numActors++;
-    }
+    if (randInt(1, 15) == 15)
+        addActor(new Star(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this));
     
     // place aliens
-    int aliensMustBeDestroyed = 6 + (4 * getLevel());
     int maximumAliensOnScreen = 4 + (0.5 * getLevel());
     int remainingShipsToBeDestroyed = aliensMustBeDestroyed - m_aliensDestroyed;
+    cout << maximumAliensOnScreen << " : max aliens on screen\n" << remainingShipsToBeDestroyed << " :remaining ships to be destroyed\n" << aliensMustBeDestroyed << " :aliens that must be destroyed to finish level\n";
+    cout << m_numAliens << " :number of aliens m_numAliens\n";
     if (m_numAliens < min(maximumAliensOnScreen, remainingShipsToBeDestroyed)) {
         // determine what type of ship to add
         int s1 = 60, s2 = 20 + (getLevel() * 5), s3 = 5 + (getLevel() * 10);
@@ -88,14 +89,13 @@ int StudentWorld::move()
         Actor* newAlien;
         if (1 <= probability && probability <= s1)
             newAlien = new Smallgon(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this);
-        if (s1 < probability && probability < s1 + s2)
+        else if (s1 < probability && probability < s1 + s2)
             newAlien = new Smoregon(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this);
-        if (s1 + s2 < probability && probability < s)
+        else
             newAlien = new Snagglegon(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this);
         // add new ship
-        m_actors.push_back(newAlien);
+        addActor(newAlien);
         m_numAliens++;
-        m_numActors++;
     }
 
     return GWSTATUS_CONTINUE_GAME;
@@ -114,6 +114,8 @@ void StudentWorld::cleanUp()
         m_nachBlaster = nullptr;
     }
     m_numActors = 0;
+    m_numAliens = 0;
+    m_aliensDestroyed = 0;
 }
 
 void StudentWorld::addActor(Actor* actor)
@@ -151,9 +153,10 @@ bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
             if ((*p)->getHP() < 0) {
                 // increase score
                 (*p)->setDead();
+                incrementNumAliensDestroyed();
+                decrementNumAliens();
                 playSound(SOUND_DEATH);
                 addActor(new Explosion((*p)->getX(), (*p)->getY(), this));
-                
             } else {
                 playSound(SOUND_BLAST);
             }
