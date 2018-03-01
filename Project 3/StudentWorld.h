@@ -23,6 +23,7 @@ public:
     int getNumAliensDestroyed() const;
     void incrementNumAliensDestroyed();
     void decrementNumAliens();
+    bool hitDamageableActors(Actor* colliding, int hp);
 private:
     std::vector<Actor*> m_actors;
     int m_numActors;

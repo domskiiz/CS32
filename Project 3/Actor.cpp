@@ -17,6 +17,7 @@ const int       NACHENBLASTER_DEPTH = 0;
 
 const double    CABBAGE_SIZE = 0.5;
 const int       CABBAGE_DEPTH = 1;
+const int       CABBAGE_DAMAGE = 2;
 
 const double    ALIEN_SIZE = 1.5;
 const int       ALIEN_DEPTH = 1;
@@ -44,11 +45,12 @@ bool collisionOccurred(Actor* one, Actor* two)
 // ACTOR IMPLEMENTATION //
 //////////////////////////
 
-Actor::Actor(int imageId, int startX, int startY, int startDirection, double size, int depth, StudentWorld* world)
+Actor::Actor(int imageId, int startX, int startY, int startDirection, double size, int depth, StudentWorld* world, bool damageable)
 : GraphObject(imageId, startX, startY, startDirection, size, depth)
 {
     m_dead = false;
     m_world = world;
+    m_damageable = damageable;
 }
 
 Actor::~Actor()
@@ -65,10 +67,21 @@ void Actor::setDead()
     m_dead = true;
 }
 
+bool Actor::isDamageable() const
+{
+    return m_damageable;
+}
+
 StudentWorld* Actor::getWorld() const
 {
     return m_world;
 }
+
+void Actor::sufferDamage(int hp)
+{
+    
+}
+
 
 
 /////////////////////////
@@ -82,7 +95,8 @@ Star::Star(int x, int y, StudentWorld* world)
         DIRECTION_RIGHT,
         (randInt(5, 50) / 100.0),
         DEPTH_STAR,
-        world)
+        world,
+        false)
 { }
 
 Star::~Star()
@@ -92,7 +106,7 @@ Star::~Star()
 
 void Star::doSomething()
 {
-    moveTo(getX()-1, getY());     // move one pixel to the left
+    moveTo(getX()-1, getY()); 
     if (getX() < 0) {
         setDead();
     }
@@ -109,7 +123,8 @@ Explosion::Explosion(int x, int y, StudentWorld* world)
         DIRECTION_RIGHT,
         EXPLOSION_SIZE,
         EXPLOSION_DEPTH,
-        world)
+        world,
+        false)
 {
     count = 0;
 }
@@ -139,7 +154,8 @@ Cabbage::Cabbage(int x, int y, StudentWorld* world)
         DIRECTION_RIGHT,
         CABBAGE_SIZE,
         CABBAGE_DEPTH,
-        world)
+        world,
+        false)
 {
     m_direction = 0;
 }
@@ -156,6 +172,8 @@ void Cabbage::doSomething()
         setDead();
         return;
     }
+    if (getWorld()->hitDamageableActors(this, CABBAGE_DAMAGE))
+        return;
     moveTo(getX() + 8, getY());
     m_direction += 20;
     setDirection(m_direction);
@@ -172,7 +190,8 @@ NachenBlaster::NachenBlaster(StudentWorld* world)
         DIRECTION_RIGHT,
         NACHENBLASTER_SIZE,
         NACHENBLASTER_DEPTH,
-        world)
+        world,
+        true)
 {
     m_hp = 50;
     m_cabbageEnergyPoints = 30;
@@ -224,6 +243,11 @@ void NachenBlaster::doSomething()
         m_cabbageEnergyPoints++;
 }
 
+void NachenBlaster::sufferDamage(int hp)
+{
+    m_hp -= hp;
+}
+
 //////////////////////////
 // ALIEN IMPLEMENTATION //
 //////////////////////////
@@ -234,7 +258,8 @@ Alien::Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPla
         DIRECTION_RIGHT,
         ALIEN_SIZE,
         ALIEN_DEPTH,
-        world)
+        world,
+        true)
 {
     m_hp = 5 * (1 + (getWorld()->getLevel() - 1) * .1);
     m_flightPlan = flightPlan;
@@ -243,6 +268,64 @@ Alien::Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPla
 
 Alien::~Alien()
 { }
+
+void Alien::doSomething()
+{
+    if (isDead()) return;
+    if (getX() < 0) {
+        setDead();
+        getWorld()->decrementNumAliens();
+        return;
+    }
+    if (collisionOccurred(this, getWorld()->getNachBlaster())) {
+        // suffer damage for nachblaster
+        setDead();
+        // increase score by 250
+        getWorld()->playSound(SOUND_DEATH);
+        getWorld()->incrementNumAliensDestroyed();
+        getWorld()->decrementNumAliens();
+        getWorld()->addActor(new Explosion(getX(), getY(), getWorld()));
+    }
+    // setting new travel directions
+    if (getY() >= VIEW_HEIGHT - 1) {
+        setFlightDirection(FLIGHT_DOWN_LEFT);
+    } else if (getY() <= 0) {
+        setFlightDirection(FLIGHT_UP_LEFT);
+    } else if (getFlightPlan() == 0) {
+        setFlightDirection(randInt(0, 2));
+        setFlightPlan(randInt(1, 32));
+    }
+    // check to fire turnip
+    
+    // move on screen
+    switch(getFlightDirection()) {
+        case FLIGHT_LEFT:
+            moveTo(getX() - getTravelSpeed(), getY());
+            decrementFlight();
+            break;
+        case FLIGHT_UP_LEFT:
+            moveTo(getX() - getTravelSpeed(), getY() + getTravelSpeed());
+            decrementFlight();
+            break;
+        case FLIGHT_DOWN_LEFT:
+            moveTo(getX() - getTravelSpeed(), getY() - getTravelSpeed());
+            decrementFlight();
+            break;
+        default:
+            break;
+    }
+    
+    // check if collided, again
+    if (collisionOccurred(this, getWorld()->getNachBlaster())) {
+        // suffer damage for nachblaster
+        setDead();
+        // increase score by 250
+        getWorld()->playSound(SOUND_DEATH);
+        getWorld()->incrementNumAliensDestroyed();
+        getWorld()->decrementNumAliens();
+        getWorld()->addActor(new Explosion(getX(), getY(), getWorld()));
+    }
+}
 
 int Alien::getFlightPlan() const
 {
@@ -279,6 +362,11 @@ double Alien::getTravelSpeed() const
     return m_travelSpeed;
 }
 
+void Alien::sufferDamage(int hp)
+{
+    m_hp -= hp;
+}
+
 /////////////////////////////
 // SMALLGON IMPLEMENTATION //
 /////////////////////////////
@@ -291,53 +379,7 @@ Smallgon::~Smallgon()
      std::cout << "Bai smallgon" << std::endl;
 }
 
-void Smallgon::doSomething()
-{
-    if (isDead()) return;
-    if (getX() < 0) {
-        setDead();
-        getWorld()->decrementNumAliens();
-        return;
-    }
-    // setting new travel directions
-    if (getY() >= VIEW_HEIGHT - 1) {
-        setFlightDirection(FLIGHT_DOWN_LEFT);
-    } else if (getY() <= 0) {
-        setFlightDirection(FLIGHT_UP_LEFT);
-    } else if (getFlightPlan() == 0) {
-        setFlightDirection(randInt(0, 2));
-        setFlightPlan(randInt(1, 32));
-    }
-    // check to fire turnip
-    if (collisionOccurred(this, getWorld()->getNachBlaster())) {
-        // suffer damage for nachblaster
-        setDead();
-        // increase score by 250
-        getWorld()->incrementNumAliensDestroyed();
-        getWorld()->playSound(SOUND_DEATH);
-        getWorld()->decrementNumAliens();
-        getWorld()->addActor(new Explosion(getX(), getY(), getWorld()));
-    }
-    // move on screen
-    switch(getFlightDirection()) {
-        case FLIGHT_LEFT:
-            moveTo(getX() - getTravelSpeed(), getY());
-            decrementFlight();
-            break;
-        case FLIGHT_UP_LEFT:
-            moveTo(getX() - getTravelSpeed(), getY() + getTravelSpeed());
-            decrementFlight();
-            break;
-        case FLIGHT_DOWN_LEFT:
-            moveTo(getX() - getTravelSpeed(), getY() - getTravelSpeed());
-            decrementFlight();
-            break;
-        default:
-            break;
-    }
-    
-    // check if collided
-}
+
 
 /////////////////////////////
 // SMOREGON IMPLEMENTATION //
@@ -351,59 +393,12 @@ Smoregon::~Smoregon()
     std::cout << "Bai smoregon" << std::endl;
 }
 
-void Smoregon::doSomething()
-{
-    if (isDead()) return;
-    if (getX() < 0) {
-        setDead();
-        getWorld()->decrementNumAliens();
-        return;
-    }
-    // setting new travel directions
-    if (getY() >= VIEW_HEIGHT - 1) {
-        setFlightDirection(FLIGHT_DOWN_LEFT);
-    } else if (getY() <= 0) {
-        setFlightDirection(FLIGHT_UP_LEFT);
-    } else if (getFlightPlan() == 0) {
-        setFlightDirection(randInt(0, 2));
-        setFlightPlan(randInt(1, 32));
-    }
-    // check to fire turnip
-    if (collisionOccurred(this, getWorld()->getNachBlaster())) {
-        // suffer damage for nachblaster
-        setDead();
-        // increase score by 250
-        getWorld()->playSound(SOUND_DEATH);
-        getWorld()->incrementNumAliensDestroyed();
-        getWorld()->decrementNumAliens();
-        getWorld()->addActor(new Explosion(getX(), getY(), getWorld()));
-    }
-    // move on screen
-    switch(getFlightDirection()) {
-        case FLIGHT_LEFT:
-            moveTo(getX() - getTravelSpeed(), getY());
-            decrementFlight();
-            break;
-        case FLIGHT_UP_LEFT:
-            moveTo(getX() - getTravelSpeed(), getY() + getTravelSpeed());
-            decrementFlight();
-            break;
-        case FLIGHT_DOWN_LEFT:
-            moveTo(getX() - getTravelSpeed(), getY() - getTravelSpeed());
-            decrementFlight();
-            break;
-        default:
-            break;
-    }
-    
-    // check if collided
-}
 
 ///////////////////////////////
 // SNAGGLEGON IMPLEMENTATION //
 ///////////////////////////////
 Snagglegon::Snagglegon(int x, int y, StudentWorld* world)
-: Alien(IID_SNAGGLEGON, x, y, world, 0, 0, 2.0)           // fix to be correct hp?
+: Alien(IID_SNAGGLEGON, x, y, world, 0, 0, 1.75)           // fix to be correct hp?
 { }
 
 Snagglegon::~Snagglegon()
@@ -411,50 +406,4 @@ Snagglegon::~Snagglegon()
     std::cout << "Bai snaggle" << std::endl;
 }
 
-void Snagglegon::doSomething()
-{
-    if (isDead()) return;
-    if (getX() < 0) {
-        setDead();
-        getWorld()->decrementNumAliens();
-        return;
-    }
-    // setting new travel directions
-    if (getY() >= VIEW_HEIGHT - 1) {
-        setFlightDirection(FLIGHT_DOWN_LEFT);
-    } else if (getY() <= 0) {
-        setFlightDirection(FLIGHT_UP_LEFT);
-    } else if (getFlightPlan() == 0) {
-        setFlightDirection(randInt(0, 2));
-        setFlightPlan(randInt(1, 32));
-    }
-    // check to fire turnip
-    if (collisionOccurred(this, getWorld()->getNachBlaster())) {
-        // suffer damage for nachblaster
-        setDead();
-        // increase score by 250
-        getWorld()->playSound(SOUND_DEATH);
-        getWorld()->incrementNumAliensDestroyed();
-        getWorld()->decrementNumAliens();
-        getWorld()->addActor(new Explosion(getX(), getY(), getWorld()));
-    }
-    // move on screen
-    switch(getFlightDirection()) {
-        case FLIGHT_LEFT:
-            moveTo(getX() - getTravelSpeed(), getY());
-            decrementFlight();
-            break;
-        case FLIGHT_UP_LEFT:
-            moveTo(getX() - getTravelSpeed(), getY() + getTravelSpeed());
-            decrementFlight();
-            break;
-        case FLIGHT_DOWN_LEFT:
-            moveTo(getX() - getTravelSpeed(), getY() - getTravelSpeed());
-            decrementFlight();
-            break;
-        default:
-            break;
-    }
-    
-    // check if collided
-}
+

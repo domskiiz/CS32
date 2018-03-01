@@ -5,6 +5,20 @@
 #include<iostream>
 using namespace std;
 
+double euclideanDistance1(int x1, int x2, int y1, int y2)
+{
+    double x = x1 - x2;
+    double y = y1 - y2;
+    return sqrt(pow(x, 2) + pow(y, 2));
+}
+
+bool collisionOccurred1(Actor* one, Actor* two)
+{
+    return (euclideanDistance1(one->getX(), two->getX(),
+                              one->getY(), two->getY())
+            < 0.75 * (one->getRadius() + two->getRadius()));
+}
+
 GameWorld* createStudentWorld(string assetDir)
 {
 	return new StudentWorld(assetDir);
@@ -32,14 +46,6 @@ int StudentWorld::init()
     m_numActors++;
     return GWSTATUS_CONTINUE_GAME;
 }
-
-/*
- • There is a one in fifteen chance that you will introduce a new star into the game
- on the far right side of the screen (at x=VIEW_WIDTH-1). Each such star will
- have a random y coordinate between [0, VIEW_HEIGHT). The size of each new
- star must also be determined randomly, and must be between .05 and .5 units in
- size.
- */
 
 int StudentWorld::move()
 {
@@ -129,12 +135,25 @@ int StudentWorld::getNumAliensDestroyed() const
 void StudentWorld::incrementNumAliensDestroyed()
 {
     m_aliensDestroyed++;
-    cout<< "Alien destroyed" << endl;
 }
 
 void StudentWorld::decrementNumAliens()
 {
     --m_numAliens;
 }
+
+bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
+{
+    vector<Actor*>::iterator p;
+    for (p = m_actors.begin(); p != m_actors.end(); p++) {
+        if (collisionOccurred1(*p, colliding) && (*p)->isDamageable()) {
+            (*p)->sufferDamage(hp);
+            colliding->setDead();
+            return true;
+        }
+    }
+    return false;
+}
+
 
 

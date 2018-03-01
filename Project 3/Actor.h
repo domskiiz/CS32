@@ -8,15 +8,18 @@ class StudentWorld;
 class Actor: public GraphObject
 {
 public:
-    Actor(int imageId, int startX, int startY, int startDirection, double size, int depth, StudentWorld* world);
+    Actor(int imageId, int startX, int startY, int startDirection, double size, int depth, StudentWorld* world, bool damageable);
     virtual ~Actor();
     virtual void doSomething() = 0;
     bool isDead() const;
     void setDead();
+    bool isDamageable() const;
+    virtual void sufferDamage(int hp);
     StudentWorld* getWorld() const;
 private:
     bool m_dead;
     StudentWorld* m_world;
+    bool m_damageable;
 };
 
 class Star: public Actor
@@ -42,6 +45,7 @@ public:
     NachenBlaster(StudentWorld* world);
     virtual ~NachenBlaster();
     virtual void doSomething();
+    void sufferDamage(int hp);
 private:
     int m_hp;
     int m_cabbageEnergyPoints;
@@ -64,7 +68,7 @@ class Alien: public Actor
 public:
     Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPlan, double travelSpeed);
     virtual ~Alien();
-    virtual void doSomething() = 0;
+    void doSomething();
     double getHp() const;
     void setFlightPlan(int length);
     int getFlightPlan() const;
@@ -72,6 +76,7 @@ public:
     int getFlightDirection() const;
     double getTravelSpeed() const;
     void decrementFlight();
+    void sufferDamage(int hp);
 private:
     double m_hp;
     int m_flightPlan;
@@ -84,7 +89,6 @@ class Smallgon: public Alien
 public:
     Smallgon(int x, int y, StudentWorld* world);
     virtual ~Smallgon();
-    virtual void doSomething();
 };
 
 class Smoregon: public Alien
@@ -92,7 +96,6 @@ class Smoregon: public Alien
 public:
     Smoregon(int x, int y, StudentWorld* world);
     virtual ~Smoregon();
-    virtual void doSomething();
 };
 
 class Snagglegon: public Alien
@@ -100,7 +103,6 @@ class Snagglegon: public Alien
 public:
     Snagglegon(int x, int y, StudentWorld* world);
     virtual ~Snagglegon();
-    virtual void doSomething();
 };
 
 #endif // ACTOR_H_
