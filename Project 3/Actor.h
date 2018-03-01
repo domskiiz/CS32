@@ -53,16 +53,33 @@ private:
     int m_cabbageEnergyPoints;
 };
 
-class Cabbage: public Actor
+class Projectile: public Actor
+{
+public:
+    Projectile(int id, int x, int y, StudentWorld* world);
+    virtual ~Projectile();
+    virtual void doSomething();
+    int getDirection() const;
+    void setThisDirection(int dir);
+private:
+    int m_direction;
+};
+
+class Cabbage: public Projectile
 {
 public:
     Cabbage(int x, int y, StudentWorld* world);
     virtual ~Cabbage();
     virtual void doSomething();
-private:
-    int m_direction;
 };
 
+class Turnip: public Projectile
+{
+public:
+    Turnip(int x, int y, StudentWorld* world);
+    virtual ~Turnip();
+    virtual void doSomething();
+};
 
 
 class Alien: public Actor
@@ -71,12 +88,14 @@ public:
     Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPlan, double travelSpeed);
     virtual ~Alien();
     void doSomething();
+    virtual void specializedAttack();
     virtual int getHP() const;
     void setFlightPlan(int length);
     int getFlightPlan() const;
     void setFlightDirection(int dir);
     int getFlightDirection() const;
     void decrementFlight();
+    void setTravelSpeed(double speed);
     double getTravelSpeed() const;
     void sufferDamage(int hp);
     virtual void setHP(int hp);
@@ -92,6 +111,7 @@ class Smallgon: public Alien
 public:
     Smallgon(int x, int y, StudentWorld* world);
     virtual ~Smallgon();
+    virtual void specializedAttack();
 };
 
 class Smoregon: public Alien
@@ -99,6 +119,7 @@ class Smoregon: public Alien
 public:
     Smoregon(int x, int y, StudentWorld* world);
     virtual ~Smoregon();
+    virtual void specializedAttack();
 };
 
 class Snagglegon: public Alien
@@ -106,6 +127,7 @@ class Snagglegon: public Alien
 public:
     Snagglegon(int x, int y, StudentWorld* world);
     virtual ~Snagglegon();
+    virtual void specializedAttack();
 };
 
 #endif // ACTOR_H_

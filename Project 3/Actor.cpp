@@ -3,6 +3,7 @@
 #include "GameConstants.h"
 #include <iostream>
 
+// MISC CONSTS
 const int       DIRECTION_RIGHT = 0;
 
 const int       DEPTH_STAR = 3;
@@ -10,15 +11,21 @@ const int       DEPTH_STAR = 3;
 const double    EXPLOSION_SIZE = 1;
 const int       EXPLOSION_DEPTH = 0;
 
+// NACHENBLASTER CONST
 const int       NACHENBLASTER_X = 0;
 const int       NACHENBLASTER_Y = 128;
 const double    NACHENBLASTER_SIZE = 1.0;
 const int       NACHENBLASTER_DEPTH = 0;
 
-const double    CABBAGE_SIZE = 0.5;
-const int       CABBAGE_DEPTH = 1;
-const int       CABBAGE_DAMAGE = 2;
+// PROJECTILE CONST
+const double    PROJECTILE_SIZE = 0.5;
+const int       PROJECTILE_DEPTH = 1;
 
+const int       CABBAGE_DAMAGE = 2;
+const int       TURNIP_DAMAGE = 2;
+
+
+// ALIEN CONST
 const double    ALIEN_SIZE = 1.5;
 const int       ALIEN_DEPTH = 1;
 
@@ -129,22 +136,44 @@ void Explosion::doSomething()
         setDead();
 }
 
-
-////////////////////////////
-// CABBAGE IMPLEMENTATION //
-////////////////////////////
-Cabbage::Cabbage(int x, int y, StudentWorld* world)
-: Actor(IID_CABBAGE,
+///////////////////////////////
+// PROJECTILE IMPLEMENTATION //
+///////////////////////////////
+Projectile::Projectile(int id, int x, int y, StudentWorld* world)
+: Actor(id,
         x,
         y,
         DIRECTION_RIGHT,
-        CABBAGE_SIZE,
-        CABBAGE_DEPTH,
+        PROJECTILE_SIZE,
+        PROJECTILE_DEPTH,
         world,
         false)
 {
     m_direction = 0;
 }
+
+Projectile::~Projectile()
+{ }
+
+void Projectile::doSomething()
+{ }
+
+int Projectile::getDirection() const
+{
+    return m_direction;
+}
+
+void Projectile::setThisDirection(int dir)
+{
+    m_direction += dir;
+}
+
+////////////////////////////
+// CABBAGE IMPLEMENTATION //
+////////////////////////////
+Cabbage::Cabbage(int x, int y, StudentWorld* world)
+        :Projectile(IID_CABBAGE, x, y, world)
+{ }
 
 Cabbage::~Cabbage()
 { }
@@ -159,9 +188,39 @@ void Cabbage::doSomething()
     if (getWorld()->hitDamageableActors(this, CABBAGE_DAMAGE))
         return;
     moveTo(getX() + 8, getY());
-    m_direction += 20;
-    setDirection(m_direction);
+    setThisDirection(20);
+    setDirection(getDirection());
+    if (getWorld()->hitDamageableActors(this, CABBAGE_DAMAGE))
+        return;
 }
+
+///////////////////////////
+// TURNIP IMPLEMENTATION //
+///////////////////////////
+Turnip::Turnip(int x, int y, StudentWorld* world)
+:Projectile(IID_TURNIP, x, y, world)
+{ }
+
+Turnip::~Turnip()
+{ }
+
+void Turnip::doSomething()
+{
+    if (isDead()) return;
+    if (getX() < 0) {
+        setDead();
+        return;
+    }
+//    if (getWorld()->hitDamageableActors(this, TURNIP_DAMAGE))
+//        return;
+    moveTo(getX() - 6, getY());
+    setThisDirection(20);
+    setDirection(getDirection());
+//    if (getWorld()->hitDamageableActors(this, CABBAGE_DAMAGE))
+//        return;
+}
+
+
 
 //////////////////////////////////
 // NACHENBLASTER IMPLEMENTATION //
@@ -275,8 +334,9 @@ void Alien::doSomething()
         setFlightDirection(randInt(0, 2));
         setFlightPlan(randInt(1, 32));
     }
-    // check to fire turnip
     
+    specializedAttack();
+
     // move on screen
     switch(getFlightDirection()) {
         case FLIGHT_LEFT:
@@ -325,7 +385,6 @@ void Alien::setHP(int hp)
     m_hp = hp;
 }
 
-
 void Alien::setFlightDirection(int dir)
 {
     m_flightDirection = dir;
@@ -334,6 +393,11 @@ void Alien::setFlightDirection(int dir)
 int Alien::getFlightDirection() const
 {
     return m_flightDirection;
+}
+
+void Alien::setTravelSpeed(double speed)
+{
+    m_travelSpeed = speed;
 }
 
 double Alien::getTravelSpeed() const
@@ -345,6 +409,9 @@ void Alien::sufferDamage(int hp)
 {
     m_hp -= hp;
 }
+
+void Alien::specializedAttack()
+{ }
 
 /////////////////////////////
 // SMALLGON IMPLEMENTATION //
@@ -358,7 +425,20 @@ Smallgon::Smallgon(int x, int y, StudentWorld* world)
 Smallgon::~Smallgon()
 { }
 
-
+void Smallgon::specializedAttack()
+{
+    if (getWorld()->getNachBlaster()->getX() < getX()
+        && getWorld()->getNachBlaster()->getY() >= getY() - 4
+        && getWorld()->getNachBlaster()->getY() <= getY() + 4)
+    {
+        int probability = randInt(1, (20/getWorld()->getLevel()) + 5);
+        if (probability == 1) {
+            getWorld()->addActor(new Turnip(getX() - 14, getY(), getWorld()));
+            getWorld()->playSound(SOUND_ALIEN_SHOOT);
+            return;
+        }
+    }
+}
 
 /////////////////////////////
 // SMOREGON IMPLEMENTATION //
@@ -372,6 +452,28 @@ Smoregon::Smoregon(int x, int y, StudentWorld* world)
 Smoregon::~Smoregon()
 { }
 
+void Smoregon::specializedAttack()
+{
+    if (getWorld()->getNachBlaster()->getX() < getX()
+        && getWorld()->getNachBlaster()->getY() >= getY() - 4
+        && getWorld()->getNachBlaster()->getY() <= getY() + 4)
+    {
+        int probability = randInt(1, (20/getWorld()->getLevel()) + 5);
+        if (probability == 1) {
+            getWorld()->addActor(new Turnip(getX() - 14, getY(), getWorld()));
+            getWorld()->playSound(SOUND_ALIEN_SHOOT);
+            return;
+        }
+        int probability2 = randInt(1, (20/getWorld()->getLevel()) + 5);
+        if (probability2 == 1) {
+            setFlightDirection(FLIGHT_LEFT);
+            setFlightPlan(VIEW_WIDTH);
+            setTravelSpeed(5.0);
+        }
+    }
+}
+
+
 
 ///////////////////////////////
 // SNAGGLEGON IMPLEMENTATION //
@@ -384,5 +486,20 @@ Snagglegon::Snagglegon(int x, int y, StudentWorld* world)
 
 Snagglegon::~Snagglegon()
 { }
+
+void Snagglegon::specializedAttack()
+{
+    if (getWorld()->getNachBlaster()->getX() < getX()
+        && getWorld()->getNachBlaster()->getY() >= getY() - 4
+        && getWorld()->getNachBlaster()->getY() <= getY() + 4)
+    {
+        int probability = randInt(1, (15/getWorld()->getLevel()) + 10);
+        if (probability == 1) {
+            getWorld()->addActor(new Turnip(getX() - 14, getY(), getWorld()));
+            getWorld()->playSound(SOUND_ALIEN_SHOOT);
+            return;
+        }
+    }
+}
 
 

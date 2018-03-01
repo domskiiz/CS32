@@ -79,8 +79,6 @@ int StudentWorld::move()
     // place aliens
     int maximumAliensOnScreen = 4 + (0.5 * getLevel());
     int remainingShipsToBeDestroyed = aliensMustBeDestroyed - m_aliensDestroyed;
-    cout << maximumAliensOnScreen << " : max aliens on screen\n" << remainingShipsToBeDestroyed << " :remaining ships to be destroyed\n" << aliensMustBeDestroyed << " :aliens that must be destroyed to finish level\n";
-    cout << m_numAliens << " :number of aliens m_numAliens\n";
     if (m_numAliens < min(maximumAliensOnScreen, remainingShipsToBeDestroyed)) {
         // determine what type of ship to add
         int s1 = 60, s2 = 20 + (getLevel() * 5), s3 = 5 + (getLevel() * 10);
