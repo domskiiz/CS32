@@ -211,13 +211,13 @@ void Turnip::doSomething()
         setDead();
         return;
     }
-//    if (getWorld()->hitDamageableActors(this, TURNIP_DAMAGE))
-//        return;
+    if (getWorld()->hitNachBlaster(this, TURNIP_DAMAGE))
+        return;
     moveTo(getX() - 6, getY());
     setThisDirection(20);
     setDirection(getDirection());
-//    if (getWorld()->hitDamageableActors(this, CABBAGE_DAMAGE))
-//        return;
+    if (getWorld()->hitNachBlaster(this, TURNIP_DAMAGE))
+        return;
 }
 
 

@@ -23,6 +23,7 @@ public:
     int getNumAliensDestroyed() const;
     void incrementNumAliensDestroyed();
     void decrementNumAliens();
+    bool hitNachBlaster(Actor* colliding, int hp);
     bool hitDamageableActors(Actor* colliding, int hp);
     bool shipCollision(Actor* alien, NachenBlaster* nach);
 private:

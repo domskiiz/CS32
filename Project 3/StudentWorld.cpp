@@ -142,6 +142,22 @@ void StudentWorld::decrementNumAliens()
     --m_numAliens;
 }
 
+bool StudentWorld::hitNachBlaster(Actor* colliding, int hp)
+{
+    vector<Actor*>::iterator p;
+    if (collisionOccurred(colliding, m_nachBlaster)) {
+        m_nachBlaster->sufferDamage(hp);
+        if (m_nachBlaster->getHP() <= 0)
+            m_nachBlaster->setDead();
+        playSound(SOUND_BLAST);
+        colliding->setDead();
+        return true;
+    }
+    
+    return false;
+}
+
+
 bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
 {
     vector<Actor*>::iterator p;
@@ -168,7 +184,7 @@ bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
 bool StudentWorld::shipCollision(Actor* alien, NachenBlaster* nach)
 {
     if (collisionOccurred(alien, nach)) {
-        // suffer damage for nachblaster
+        m_nachBlaster->sufferDamage(10);
         alien->setDead();
         // increase score by 250
         playSound(SOUND_DEATH);
