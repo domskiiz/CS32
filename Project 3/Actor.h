@@ -63,6 +63,7 @@ public:
     void setFlightDirection(int dir);
     int getFlightDirection() const;
     double getTravelSpeed() const;
+    void decrementFlight();
 private:
     double m_hp;
     int m_flightPlan;
@@ -76,7 +77,14 @@ public:
     Smallgon(int x, int y, StudentWorld* world);
     virtual ~Smallgon();
     virtual void doSomething();
+};
 
+class Smoregon: public Alien
+{
+public:
+    Smoregon(int x, int y, StudentWorld* world);
+    virtual ~Smoregon();
+    virtual void doSomething();
 };
 
 #endif // ACTOR_H_

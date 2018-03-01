@@ -204,6 +204,11 @@ void Alien::setFlightPlan(int length)
     m_flightPlan = length;
 }
 
+void Alien::decrementFlight()
+{
+    m_flightPlan--;
+}
+
 double Alien::getHp() const
 {
     return m_hp;
@@ -258,12 +263,66 @@ void Smallgon::doSomething()
     switch(getFlightDirection()) {
         case FLIGHT_LEFT:
             moveTo(getX() - getTravelSpeed(), getY());
+            decrementFlight();
             break;
         case FLIGHT_UP_LEFT:
             moveTo(getX() - getTravelSpeed(), getY() + getTravelSpeed());
+            decrementFlight();
             break;
         case FLIGHT_DOWN_LEFT:
             moveTo(getX() - getTravelSpeed(), getY() - getTravelSpeed());
+            decrementFlight();
+            break;
+        default:
+            break;
+    }
+    
+    // check if collided
+}
+
+/////////////////////////////
+// SMOREGON IMPLEMENTATION //
+/////////////////////////////
+Smoregon::Smoregon(int x, int y, StudentWorld* world)
+: Alien(IID_SMOREGON, x, y, world, 0, 0, 2.0)           // fix to be correct hp?
+{ }
+
+Smoregon::~Smoregon()
+{
+    std::cout << "Bai smoregon" << std::endl;
+}
+
+void Smoregon::doSomething()
+{
+    if (isDead()) return;
+    if (getX() < 0) {
+        setDead();
+        return;
+    }
+    // setting new travel directions
+    if (getY() >= VIEW_HEIGHT - 1) {
+        setFlightDirection(FLIGHT_DOWN_LEFT);
+    } else if (getY() <= 0) {
+        setFlightDirection(FLIGHT_UP_LEFT);
+    } else if (getFlightPlan() == 0) {
+        setFlightDirection(randInt(0, 2));
+        setFlightPlan(randInt(1, 32));
+    }
+    // check to fire turnip
+    
+    // move on screen
+    switch(getFlightDirection()) {
+        case FLIGHT_LEFT:
+            moveTo(getX() - getTravelSpeed(), getY());
+            decrementFlight();
+            break;
+        case FLIGHT_UP_LEFT:
+            moveTo(getX() - getTravelSpeed(), getY() + getTravelSpeed());
+            decrementFlight();
+            break;
+        case FLIGHT_DOWN_LEFT:
+            moveTo(getX() - getTravelSpeed(), getY() - getTravelSpeed());
+            decrementFlight();
             break;
         default:
             break;
