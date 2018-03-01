@@ -7,6 +7,9 @@ const int       DIRECTION_RIGHT = 0;
 
 const int       DEPTH_STAR = 3;
 
+const double    EXPLOSION_SIZE = 1;
+const int       EXPLOSION_DEPTH = 0;
+
 const int       NACHENBLASTER_X = 0;
 const int       NACHENBLASTER_Y = 128;
 const double    NACHENBLASTER_SIZE = 1.0;
@@ -95,6 +98,36 @@ void Star::doSomething()
     }
 }
 
+//////////////////////////////
+// EXPLOSION IMPLEMENTATION //
+//////////////////////////////
+
+Explosion::Explosion(int x, int y, StudentWorld* world)
+: Actor(IID_EXPLOSION,
+        x,
+        y,
+        DIRECTION_RIGHT,
+        EXPLOSION_SIZE,
+        EXPLOSION_DEPTH,
+        world)
+{
+    count = 0;
+}
+
+Explosion::~Explosion()
+{
+    std::cout << "Bai EXPLode" << std::endl;
+}
+
+void Explosion::doSomething()
+{
+    setSize(1.5 * getSize());
+    if (count < 4)
+        count++;
+    else
+        setDead();
+}
+
 
 ////////////////////////////
 // CABBAGE IMPLEMENTATION //
@@ -179,7 +212,7 @@ void NachenBlaster::doSomething()
                 } else break;
             case KEY_PRESS_SPACE:
                 if (m_cabbageEnergyPoints >= 5) {
-                    getWorld()->addCabbage(getX() + 12, getY());
+                    getWorld()->addActor(new Cabbage(getX() + 12, getY(), getWorld()));
                     getWorld()->playSound(SOUND_PLAYER_SHOOT);
                     m_cabbageEnergyPoints -= 5;
                 }
@@ -263,6 +296,7 @@ void Smallgon::doSomething()
     if (isDead()) return;
     if (getX() < 0) {
         setDead();
+        getWorld()->decrementNumAliens();
         return;
     }
     // setting new travel directions
@@ -279,8 +313,10 @@ void Smallgon::doSomething()
         // suffer damage for nachblaster
         setDead();
         // increase score by 250
+        getWorld()->incrementNumAliensDestroyed();
         getWorld()->playSound(SOUND_DEATH);
-        // explosion
+        getWorld()->decrementNumAliens();
+        getWorld()->addActor(new Explosion(getX(), getY(), getWorld()));
     }
     // move on screen
     switch(getFlightDirection()) {
@@ -320,6 +356,7 @@ void Smoregon::doSomething()
     if (isDead()) return;
     if (getX() < 0) {
         setDead();
+        getWorld()->decrementNumAliens();
         return;
     }
     // setting new travel directions
@@ -337,7 +374,69 @@ void Smoregon::doSomething()
         setDead();
         // increase score by 250
         getWorld()->playSound(SOUND_DEATH);
-        // explosion
+        getWorld()->incrementNumAliensDestroyed();
+        getWorld()->decrementNumAliens();
+        getWorld()->addActor(new Explosion(getX(), getY(), getWorld()));
+    }
+    // move on screen
+    switch(getFlightDirection()) {
+        case FLIGHT_LEFT:
+            moveTo(getX() - getTravelSpeed(), getY());
+            decrementFlight();
+            break;
+        case FLIGHT_UP_LEFT:
+            moveTo(getX() - getTravelSpeed(), getY() + getTravelSpeed());
+            decrementFlight();
+            break;
+        case FLIGHT_DOWN_LEFT:
+            moveTo(getX() - getTravelSpeed(), getY() - getTravelSpeed());
+            decrementFlight();
+            break;
+        default:
+            break;
+    }
+    
+    // check if collided
+}
+
+///////////////////////////////
+// SNAGGLEGON IMPLEMENTATION //
+///////////////////////////////
+Snagglegon::Snagglegon(int x, int y, StudentWorld* world)
+: Alien(IID_SNAGGLEGON, x, y, world, 0, 0, 2.0)           // fix to be correct hp?
+{ }
+
+Snagglegon::~Snagglegon()
+{
+    std::cout << "Bai snaggle" << std::endl;
+}
+
+void Snagglegon::doSomething()
+{
+    if (isDead()) return;
+    if (getX() < 0) {
+        setDead();
+        getWorld()->decrementNumAliens();
+        return;
+    }
+    // setting new travel directions
+    if (getY() >= VIEW_HEIGHT - 1) {
+        setFlightDirection(FLIGHT_DOWN_LEFT);
+    } else if (getY() <= 0) {
+        setFlightDirection(FLIGHT_UP_LEFT);
+    } else if (getFlightPlan() == 0) {
+        setFlightDirection(randInt(0, 2));
+        setFlightPlan(randInt(1, 32));
+    }
+    // check to fire turnip
+    if (collisionOccurred(this, getWorld()->getNachBlaster())) {
+        // suffer damage for nachblaster
+        setDead();
+        // increase score by 250
+        getWorld()->playSound(SOUND_DEATH);
+        getWorld()->incrementNumAliensDestroyed();
+        getWorld()->decrementNumAliens();
+        getWorld()->addActor(new Explosion(getX(), getY(), getWorld()));
     }
     // move on screen
     switch(getFlightDirection()) {

@@ -2,6 +2,7 @@
 #include "GameConstants.h"
 #include "Actor.h"
 #include <string>
+#include<iostream>
 using namespace std;
 
 GameWorld* createStudentWorld(string assetDir)
@@ -74,7 +75,19 @@ int StudentWorld::move()
     int maximumAliensOnScreen = 4 + (0.5 * getLevel());
     int remainingShipsToBeDestroyed = aliensMustBeDestroyed - m_aliensDestroyed;
     if (m_numAliens < min(maximumAliensOnScreen, remainingShipsToBeDestroyed)) {
-        m_actors.push_back(new Smallgon(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this));
+        // determine what type of ship to add
+        int s1 = 60, s2 = 20 + (getLevel() * 5), s3 = 5 + (getLevel() * 10);
+        int s = s1 + s2 + s3;
+        int probability = randInt(1, s);
+        Actor* newAlien;
+        if (1 <= probability && probability <= s1)
+            newAlien = new Smallgon(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this);
+        if (s1 < probability && probability < s1 + s2)
+            newAlien = new Smoregon(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this);
+        if (s1 + s2 < probability && probability < s)
+            newAlien = new Snagglegon(VIEW_WIDTH - 1, randInt(0, VIEW_HEIGHT - 1), this);
+        // add new ship
+        m_actors.push_back(newAlien);
         m_numAliens++;
         m_numActors++;
     }
@@ -97,9 +110,9 @@ void StudentWorld::cleanUp()
     m_numActors = 0;
 }
 
-void StudentWorld::addCabbage(int x, int y)
+void StudentWorld::addActor(Actor* actor)
 {
-    m_actors.push_back(new Cabbage(x, y, this));
+    m_actors.push_back(actor);
     m_numActors++;
 }
 
@@ -107,3 +120,21 @@ NachenBlaster* StudentWorld::getNachBlaster() const
 {
     return m_nachBlaster;
 }
+
+int StudentWorld::getNumAliensDestroyed() const
+{
+    return m_aliensDestroyed;
+}
+
+void StudentWorld::incrementNumAliensDestroyed()
+{
+    m_aliensDestroyed++;
+    cout<< "Alien destroyed" << endl;
+}
+
+void StudentWorld::decrementNumAliens()
+{
+    --m_numAliens;
+}
+
+

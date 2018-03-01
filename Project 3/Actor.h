@@ -5,7 +5,6 @@
 
 class StudentWorld;
 
-// Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 class Actor: public GraphObject
 {
 public:
@@ -26,6 +25,15 @@ public:
     Star(int x, int y, StudentWorld* world);
     virtual ~Star();
     virtual void doSomething();
+};
+
+class Explosion: public Actor
+{
+public:
+    Explosion(int x, int y, StudentWorld* world);
+    virtual ~Explosion();
+    virtual void doSomething();
+    int count;
 };
 
 class NachenBlaster: public Actor
@@ -84,6 +92,14 @@ class Smoregon: public Alien
 public:
     Smoregon(int x, int y, StudentWorld* world);
     virtual ~Smoregon();
+    virtual void doSomething();
+};
+
+class Snagglegon: public Alien
+{
+public:
+    Snagglegon(int x, int y, StudentWorld* world);
+    virtual ~Snagglegon();
     virtual void doSomething();
 };
 

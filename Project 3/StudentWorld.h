@@ -19,8 +19,10 @@ public:
     virtual int move();
     virtual void cleanUp();
     NachenBlaster* getNachBlaster() const;
-    void addCabbage(int x, int y);
-
+    void addActor(Actor* actor);
+    int getNumAliensDestroyed() const;
+    void incrementNumAliensDestroyed();
+    void decrementNumAliens();
 private:
     std::vector<Actor*> m_actors;
     int m_numActors;
