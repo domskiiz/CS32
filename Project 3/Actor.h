@@ -56,7 +56,7 @@ private:
 class Projectile: public Actor
 {
 public:
-    Projectile(int id, int x, int y, StudentWorld* world);
+    Projectile(int id, int x, int y, StudentWorld* world, int direction);
     virtual ~Projectile();
     virtual void doSomething();
     int getDirection() const;
@@ -81,6 +81,30 @@ public:
     virtual void doSomething();
 };
 
+class Torpedo: public Projectile
+{
+public:
+    Torpedo(int x, int y, StudentWorld* world, int direction);
+    virtual ~Torpedo();
+    virtual void doSomething();
+    virtual void specializedAttack() = 0;
+};
+
+class AlienTorpedo: public Torpedo
+{
+public:
+    AlienTorpedo(int x, int y, StudentWorld* world);
+    virtual ~AlienTorpedo();
+    void specializedAttack();
+};
+
+class NachTorpedo: public Torpedo
+{
+public:
+    NachTorpedo(int x, int y, StudentWorld* world);
+    virtual ~NachTorpedo();
+    void specializedAttack();
+};
 
 class Alien: public Actor
 {

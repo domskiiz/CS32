@@ -5,6 +5,7 @@
 
 // MISC CONSTS
 const int       DIRECTION_RIGHT = 0;
+const int       DIRECTION_LEFT = 180;
 
 const int       DEPTH_STAR = 3;
 
@@ -23,6 +24,7 @@ const int       PROJECTILE_DEPTH = 1;
 
 const int       CABBAGE_DAMAGE = 2;
 const int       TURNIP_DAMAGE = 2;
+const int       TORPEDO_DAMAGE = 8;
 
 
 // ALIEN CONST
@@ -139,11 +141,11 @@ void Explosion::doSomething()
 ///////////////////////////////
 // PROJECTILE IMPLEMENTATION //
 ///////////////////////////////
-Projectile::Projectile(int id, int x, int y, StudentWorld* world)
+Projectile::Projectile(int id, int x, int y, StudentWorld* world, int direction)
 : Actor(id,
         x,
         y,
-        DIRECTION_RIGHT,
+        direction,
         PROJECTILE_SIZE,
         PROJECTILE_DEPTH,
         world,
@@ -172,7 +174,7 @@ void Projectile::setThisDirection(int dir)
 // CABBAGE IMPLEMENTATION //
 ////////////////////////////
 Cabbage::Cabbage(int x, int y, StudentWorld* world)
-        :Projectile(IID_CABBAGE, x, y, world)
+        :Projectile(IID_CABBAGE, x, y, world, DIRECTION_RIGHT)
 { }
 
 Cabbage::~Cabbage()
@@ -198,7 +200,7 @@ void Cabbage::doSomething()
 // TURNIP IMPLEMENTATION //
 ///////////////////////////
 Turnip::Turnip(int x, int y, StudentWorld* world)
-:Projectile(IID_TURNIP, x, y, world)
+:Projectile(IID_TURNIP, x, y, world, DIRECTION_RIGHT)
 { }
 
 Turnip::~Turnip()
@@ -220,6 +222,58 @@ void Turnip::doSomething()
         return;
 }
 
+////////////////////////////
+// TORPEDO IMPLEMENTATION //
+////////////////////////////
+Torpedo::Torpedo(int x, int y, StudentWorld* world, int direction)
+:Projectile(IID_TORPEDO, x, y, world, direction)
+{ }
+
+Torpedo::~Torpedo()
+{ }
+
+void Torpedo::doSomething()
+{
+    if (isDead()) return;
+    if (getX() < 0 || getX() > VIEW_WIDTH) {
+        setDead();
+        return;
+    }
+    specializedAttack();
+}
+
+AlienTorpedo::AlienTorpedo(int x, int y, StudentWorld* world)
+:Torpedo(x, y, world, DIRECTION_LEFT)
+{ }
+
+AlienTorpedo::~AlienTorpedo()
+{ }
+
+void AlienTorpedo::specializedAttack()
+{
+    if (getWorld()->hitNachBlaster(this, TORPEDO_DAMAGE))
+        return;
+    moveTo(getX() - 8, getY());
+    if (getWorld()->hitNachBlaster(this, TORPEDO_DAMAGE))
+        return;
+
+}
+
+NachTorpedo::NachTorpedo(int x, int y, StudentWorld* world)
+:Torpedo(x, y, world, DIRECTION_RIGHT)
+{ }
+
+NachTorpedo::~NachTorpedo()
+{ }
+
+void NachTorpedo::specializedAttack()
+{
+    if (getWorld()->hitDamageableActors(this, TORPEDO_DAMAGE))
+        return;
+    moveTo(getX() + 8, getY());
+    if (getWorld()->hitDamageableActors(this, TORPEDO_DAMAGE))
+        return;
+}
 
 
 //////////////////////////////////
@@ -417,7 +471,7 @@ void Alien::specializedAttack()
 // SMALLGON IMPLEMENTATION //
 /////////////////////////////
 Smallgon::Smallgon(int x, int y, StudentWorld* world)
-: Alien(IID_SMALLGON, x, y, world, 0, 0, 2.0)           // fix to be correct hp?
+: Alien(IID_SMALLGON, x, y, world, 0, 0, 2.0)
 {
     setHP(5 * (1 + (getWorld()->getLevel() - 1) * .1));
 }
@@ -444,7 +498,7 @@ void Smallgon::specializedAttack()
 // SMOREGON IMPLEMENTATION //
 /////////////////////////////
 Smoregon::Smoregon(int x, int y, StudentWorld* world)
-: Alien(IID_SMOREGON, x, y, world, 0, 0, 2.0)           // fix to be correct hp?
+: Alien(IID_SMOREGON, x, y, world, 0, 0, 2.0)
 {
     setHP(5 * (1 + (getWorld()->getLevel() - 1) * .1));
 }
@@ -479,7 +533,7 @@ void Smoregon::specializedAttack()
 // SNAGGLEGON IMPLEMENTATION //
 ///////////////////////////////
 Snagglegon::Snagglegon(int x, int y, StudentWorld* world)
-: Alien(IID_SNAGGLEGON, x, y, world, 0, 0, 1.75)           // fix to be correct hp?
+: Alien(IID_SNAGGLEGON, x, y, world, 0, 0, 1.75)
 {
     setHP(10 * (1 + (getWorld()->getLevel() - 1) * .1));
 }
@@ -495,8 +549,8 @@ void Snagglegon::specializedAttack()
     {
         int probability = randInt(1, (15/getWorld()->getLevel()) + 10);
         if (probability == 1) {
-            getWorld()->addActor(new Turnip(getX() - 14, getY(), getWorld()));
-            getWorld()->playSound(SOUND_ALIEN_SHOOT);
+            getWorld()->addActor(new AlienTorpedo(getX() - 14, getY(), getWorld()));
+            getWorld()->playSound(SOUND_TORPEDO);
             return;
         }
     }
