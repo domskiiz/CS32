@@ -17,6 +17,7 @@ public:
     virtual void sufferDamage(int hp);
     virtual int getHP() const;
     StudentWorld* getWorld() const;
+    virtual int getScore() const;
 private:
     bool m_dead;
     StudentWorld* m_world;
@@ -48,6 +49,7 @@ public:
     virtual void doSomething();
     void sufferDamage(int hp);
     virtual int getHP() const;
+    int getCabbagePercent() const;
 private:
     int m_hp;
     int m_cabbageEnergyPoints;
@@ -109,7 +111,7 @@ public:
 class Alien: public Actor
 {
 public:
-    Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPlan, double travelSpeed);
+    Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPlan, double travelSpeed, int score);
     virtual ~Alien();
     void doSomething();
     virtual void specializedAttack();
@@ -123,11 +125,13 @@ public:
     double getTravelSpeed() const;
     void sufferDamage(int hp);
     virtual void setHP(int hp);
+    virtual int getScore() const;
 private:
     double m_hp;
     int m_flightPlan;
     int m_flightDirection;
     double m_travelSpeed;
+    int m_scorePoints;
 };
 
 class Smallgon: public Alien

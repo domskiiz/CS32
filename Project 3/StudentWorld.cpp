@@ -2,7 +2,9 @@
 #include "GameConstants.h"
 #include "Actor.h"
 #include <string>
-#include<iostream>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 using namespace std;
 
 double euclideanDistance(int x1, int x2, int y1, int y2)
@@ -55,8 +57,10 @@ int StudentWorld::move()
         (i < m_numActors - 1) ? actor = m_actors[i] : actor = m_nachBlaster;
         if (!actor->isDead())
             actor->doSomething();
-        if (m_nachBlaster->isDead())
+        if (m_nachBlaster->isDead()) {
+            decLives();
             return GWSTATUS_PLAYER_DIED;
+        }
         if (m_aliensDestroyed == aliensMustBeDestroyed)
             return GWSTATUS_FINISHED_LEVEL;
     }
@@ -95,7 +99,17 @@ int StudentWorld::move()
         addActor(newAlien);
         m_numAliens++;
     }
-
+    
+    ostringstream oss;
+    oss.setf(ios::fixed);
+    oss.precision(2);
+    oss << "Lives: " << getLives();
+    oss << setw(10) << "Health: " << (m_nachBlaster->getHP() * 2) << "%";
+    oss << setw(10) << "Score: " << getScore();
+    oss << setw(10) << "Level: " << getLevel();
+    oss << setw(15) << "Cabbages: " << m_nachBlaster->getCabbagePercent() << "%";
+    setGameStatText(oss.str());
+    
     return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -165,7 +179,7 @@ bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
         if (collisionOccurred(*p, colliding) && (*p)->isDamageable()) {
             (*p)->sufferDamage(hp);
             if ((*p)->getHP() < 0) {
-                // increase score
+                increaseScore((*p)->getScore());
                 (*p)->setDead();
                 incrementNumAliensDestroyed();
                 decrementNumAliens();
@@ -186,7 +200,7 @@ bool StudentWorld::shipCollision(Actor* alien, NachenBlaster* nach)
     if (collisionOccurred(alien, nach)) {
         m_nachBlaster->sufferDamage(10);
         alien->setDead();
-        // increase score by 250
+        increaseScore(alien->getScore());
         playSound(SOUND_DEATH);
         incrementNumAliensDestroyed();
         decrementNumAliens();

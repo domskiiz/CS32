@@ -26,7 +26,6 @@ const int       CABBAGE_DAMAGE = 2;
 const int       TURNIP_DAMAGE = 2;
 const int       TORPEDO_DAMAGE = 8;
 
-
 // ALIEN CONST
 const double    ALIEN_SIZE = 1.5;
 const int       ALIEN_DEPTH = 1;
@@ -34,6 +33,11 @@ const int       ALIEN_DEPTH = 1;
 const int       FLIGHT_LEFT = 0;
 const int       FLIGHT_UP_LEFT = 1;
 const int       FLIGHT_DOWN_LEFT = 2;
+
+const int       SMALLGON_SCORE = 250;
+const int       SMOREGON_SCORE = 250;
+const int       SNAGGLEGON_SCORE = 1000;
+
 
 //////////////////////////
 // ACTOR IMPLEMENTATION //
@@ -77,6 +81,11 @@ void Actor::sufferDamage(int hp)
 }
 
 int Actor::getHP() const
+{
+    return 0;
+}
+
+int Actor::getScore() const
 {
     return 0;
 }
@@ -348,10 +357,14 @@ int NachenBlaster::getHP() const
     return m_hp;
 }
 
+int NachenBlaster::getCabbagePercent() const
+{
+    return (m_cabbageEnergyPoints / 30.0) * 100;
+}
 //////////////////////////
 // ALIEN IMPLEMENTATION //
 //////////////////////////
-Alien::Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPlan, double travelSpeed)
+Alien::Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPlan, double travelSpeed, int score)
 : Actor(id,
         x,
         y,
@@ -363,6 +376,7 @@ Alien::Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPla
 {
     m_flightPlan = flightPlan;
     m_travelSpeed = travelSpeed;
+    m_scorePoints = score;
 }
 
 Alien::~Alien()
@@ -464,6 +478,11 @@ void Alien::sufferDamage(int hp)
     m_hp -= hp;
 }
 
+int Alien::getScore() const
+{
+    return m_scorePoints;
+}
+
 void Alien::specializedAttack()
 { }
 
@@ -471,7 +490,7 @@ void Alien::specializedAttack()
 // SMALLGON IMPLEMENTATION //
 /////////////////////////////
 Smallgon::Smallgon(int x, int y, StudentWorld* world)
-: Alien(IID_SMALLGON, x, y, world, 0, 0, 2.0)
+: Alien(IID_SMALLGON, x, y, world, 0, 0, 2.0, SMALLGON_SCORE)
 {
     setHP(5 * (1 + (getWorld()->getLevel() - 1) * .1));
 }
@@ -498,7 +517,7 @@ void Smallgon::specializedAttack()
 // SMOREGON IMPLEMENTATION //
 /////////////////////////////
 Smoregon::Smoregon(int x, int y, StudentWorld* world)
-: Alien(IID_SMOREGON, x, y, world, 0, 0, 2.0)
+: Alien(IID_SMOREGON, x, y, world, 0, 0, 2.0, SMOREGON_SCORE)
 {
     setHP(5 * (1 + (getWorld()->getLevel() - 1) * .1));
 }
@@ -533,7 +552,7 @@ void Smoregon::specializedAttack()
 // SNAGGLEGON IMPLEMENTATION //
 ///////////////////////////////
 Snagglegon::Snagglegon(int x, int y, StudentWorld* world)
-: Alien(IID_SNAGGLEGON, x, y, world, 0, 0, 1.75)
+: Alien(IID_SNAGGLEGON, x, y, world, 0, 0, 1.75, SNAGGLEGON_SCORE)
 {
     setHP(10 * (1 + (getWorld()->getLevel() - 1) * .1));
 }
