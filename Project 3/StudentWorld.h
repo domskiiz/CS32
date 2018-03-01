@@ -24,6 +24,7 @@ public:
     void incrementNumAliensDestroyed();
     void decrementNumAliens();
     bool hitDamageableActors(Actor* colliding, int hp);
+    bool shipCollision(Actor* alien, NachenBlaster* nach);
 private:
     std::vector<Actor*> m_actors;
     int m_numActors;

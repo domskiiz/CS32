@@ -26,21 +26,6 @@ const int       FLIGHT_LEFT = 0;
 const int       FLIGHT_UP_LEFT = 1;
 const int       FLIGHT_DOWN_LEFT = 2;
 
-// helper functions
-double euclideanDistance(int x1, int x2, int y1, int y2)
-{
-    double x = x1 - x2;
-    double y = y1 - y2;
-    return sqrt(pow(x, 2) + pow(y, 2));
-}
-
-bool collisionOccurred(Actor* one, Actor* two)
-{
-    return (euclideanDistance(one->getX(), two->getX(),
-                              one->getY(), two->getY())
-            < 0.75 * (one->getRadius() + two->getRadius()));
-}
-
 //////////////////////////
 // ACTOR IMPLEMENTATION //
 //////////////////////////
@@ -80,6 +65,11 @@ StudentWorld* Actor::getWorld() const
 void Actor::sufferDamage(int hp)
 {
     
+}
+
+int Actor::getHP() const
+{
+    return 0;
 }
 
 
@@ -248,6 +238,11 @@ void NachenBlaster::sufferDamage(int hp)
     m_hp -= hp;
 }
 
+int NachenBlaster::getHP() const
+{
+    return m_hp;
+}
+
 //////////////////////////
 // ALIEN IMPLEMENTATION //
 //////////////////////////
@@ -277,14 +272,8 @@ void Alien::doSomething()
         getWorld()->decrementNumAliens();
         return;
     }
-    if (collisionOccurred(this, getWorld()->getNachBlaster())) {
-        // suffer damage for nachblaster
-        setDead();
-        // increase score by 250
-        getWorld()->playSound(SOUND_DEATH);
-        getWorld()->incrementNumAliensDestroyed();
-        getWorld()->decrementNumAliens();
-        getWorld()->addActor(new Explosion(getX(), getY(), getWorld()));
+    if (getWorld()->shipCollision(this, getWorld()->getNachBlaster())) {
+        return;
     }
     // setting new travel directions
     if (getY() >= VIEW_HEIGHT - 1) {
@@ -315,15 +304,8 @@ void Alien::doSomething()
             break;
     }
     
-    // check if collided, again
-    if (collisionOccurred(this, getWorld()->getNachBlaster())) {
-        // suffer damage for nachblaster
-        setDead();
-        // increase score by 250
-        getWorld()->playSound(SOUND_DEATH);
-        getWorld()->incrementNumAliensDestroyed();
-        getWorld()->decrementNumAliens();
-        getWorld()->addActor(new Explosion(getX(), getY(), getWorld()));
+    if (getWorld()->shipCollision(this, getWorld()->getNachBlaster())) {
+        return;
     }
 }
 
@@ -342,7 +324,7 @@ void Alien::decrementFlight()
     m_flightPlan--;
 }
 
-double Alien::getHp() const
+int Alien::getHP() const
 {
     return m_hp;
 }

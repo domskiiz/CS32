@@ -5,16 +5,16 @@
 #include<iostream>
 using namespace std;
 
-double euclideanDistance1(int x1, int x2, int y1, int y2)
+double euclideanDistance(int x1, int x2, int y1, int y2)
 {
     double x = x1 - x2;
     double y = y1 - y2;
     return sqrt(pow(x, 2) + pow(y, 2));
 }
 
-bool collisionOccurred1(Actor* one, Actor* two)
+bool collisionOccurred(Actor* one, Actor* two)
 {
-    return (euclideanDistance1(one->getX(), two->getX(),
+    return (euclideanDistance(one->getX(), two->getX(),
                               one->getY(), two->getY())
             < 0.75 * (one->getRadius() + two->getRadius()));
 }
@@ -146,8 +146,17 @@ bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
 {
     vector<Actor*>::iterator p;
     for (p = m_actors.begin(); p != m_actors.end(); p++) {
-        if (collisionOccurred1(*p, colliding) && (*p)->isDamageable()) {
+        if (collisionOccurred(*p, colliding) && (*p)->isDamageable()) {
             (*p)->sufferDamage(hp);
+            if ((*p)->getHP() < 0) {
+                // increase score
+                (*p)->setDead();
+                playSound(SOUND_DEATH);
+                addActor(new Explosion((*p)->getX(), (*p)->getY(), this));
+                
+            } else {
+                playSound(SOUND_BLAST);
+            }
             colliding->setDead();
             return true;
         }
@@ -155,5 +164,18 @@ bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
     return false;
 }
 
-
+bool StudentWorld::shipCollision(Actor* alien, NachenBlaster* nach)
+{
+    if (collisionOccurred(alien, nach)) {
+        // suffer damage for nachblaster
+        alien->setDead();
+        // increase score by 250
+        playSound(SOUND_DEATH);
+        incrementNumAliensDestroyed();
+        decrementNumAliens();
+        addActor(new Explosion(alien->getX(), alien->getY(), this));
+        return true;
+    }
+    return false;
+}
 

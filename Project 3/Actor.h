@@ -15,6 +15,7 @@ public:
     void setDead();
     bool isDamageable() const;
     virtual void sufferDamage(int hp);
+    virtual int getHP() const;
     StudentWorld* getWorld() const;
 private:
     bool m_dead;
@@ -46,6 +47,7 @@ public:
     virtual ~NachenBlaster();
     virtual void doSomething();
     void sufferDamage(int hp);
+    virtual int getHP() const;
 private:
     int m_hp;
     int m_cabbageEnergyPoints;
@@ -69,7 +71,7 @@ public:
     Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPlan, double travelSpeed);
     virtual ~Alien();
     void doSomething();
-    double getHp() const;
+    virtual int getHP() const;
     void setFlightPlan(int length);
     int getFlightPlan() const;
     void setFlightDirection(int dir);
