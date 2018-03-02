@@ -91,7 +91,7 @@ int StudentWorld::move()
     // update display text
     ostringstream oss;
     oss.setf(ios::fixed);
-    oss.precision(2);
+    oss.precision(0);
     oss << "Lives: " << getLives() << "  ";
     oss << "Health: " << (m_nachBlaster->getHP() * 2) << "%  ";
     oss << "Score: " << getScore() << "  ";
