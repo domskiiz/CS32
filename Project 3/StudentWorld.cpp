@@ -149,7 +149,6 @@ void StudentWorld::decrementNumAliens()
 // handles if a enemy projectile hits the NachenBlaster
 bool StudentWorld::hitNachBlaster(Actor* colliding, int hp)
 {
-    vector<Actor*>::iterator p;
     if (collisionOccurred(colliding, m_nachBlaster)) {
         m_nachBlaster->sufferDamage(hp);
         if (m_nachBlaster->getHP() <= 0)
@@ -161,7 +160,7 @@ bool StudentWorld::hitNachBlaster(Actor* colliding, int hp)
     return false;
 }
 
-// handles if a NachenBlaster Cabbage hits an alien ship
+// handles if a NachenBlaster Projectile hits an alien ship
 bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
 {
     vector<Actor*>::iterator p;
@@ -171,7 +170,7 @@ bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
             if ((*p)->getHP() < 0) {
                 increaseScore((*p)->getScore());
                 (*p)->setDead();
-                (*p)->dropSomething();
+                static_cast<Alien*>(*p)->dropSomething();
                 incrementNumAliensDestroyed();
                 decrementNumAliens();
                 playSound(SOUND_DEATH);
@@ -192,7 +191,7 @@ bool StudentWorld::goodieReceived(Goodie* goodie)
     if (collisionOccurred(goodie, m_nachBlaster)) {
         increaseScore(100);
         goodie->setDead();
-        goodie->specialized();
+        static_cast<Goodie*>(goodie)->specialized();
         playSound(SOUND_GOODIE);
         return true;
     }
@@ -207,8 +206,7 @@ bool StudentWorld::shipCollision(Actor* alien, NachenBlaster* nach)
         if (m_nachBlaster->getHP() <= 0)
             m_nachBlaster->setDead();
         alien->setDead();
-        alien->dropSomething();
-        
+        static_cast<Alien*>(alien)->dropSomething();
         increaseScore(alien->getScore());
         playSound(SOUND_DEATH);
         incrementNumAliensDestroyed();

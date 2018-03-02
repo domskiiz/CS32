@@ -90,9 +90,6 @@ int Actor::getScore() const
     return 0;
 }
 
-void Actor::dropSomething()
-{ }
-
 /////////////////////////
 // STAR IMPLEMENTATION //
 /////////////////////////
@@ -175,9 +172,6 @@ Projectile::Projectile(int id, int x, int y, StudentWorld* world, int direction)
 }
 
 Projectile::~Projectile()
-{ }
-
-void Projectile::doSomething()
 { }
 
 int Projectile::getDirection() const
@@ -529,8 +523,6 @@ int Alien::getScore() const
     return m_scorePoints;
 }
 
-void Alien::specializedAttack()
-{ }
 
 /////////////////////////////
 // SMALLGON IMPLEMENTATION //
@@ -558,6 +550,10 @@ void Smallgon::specializedAttack()
         }
     }
 }
+
+void Smallgon::dropSomething()
+{ }
+
 
 /////////////////////////////
 // SMOREGON IMPLEMENTATION //
@@ -672,9 +668,6 @@ void Goodie::doSomething()
     if (getWorld()->goodieReceived(this))
         return;
 }
-
-void Goodie::specialized()
-{ }
 
 ExtraLifeGoodie::ExtraLifeGoodie(int x, int y, StudentWorld* world)
 :Goodie(x, y, world, IID_LIFE_GOODIE)

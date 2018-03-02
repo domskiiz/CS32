@@ -18,7 +18,6 @@ public:
     virtual void sufferDamage(int hp);
     virtual int getHP() const;
     virtual int getScore() const;
-    virtual void dropSomething();
 private:
     bool m_dead;
     StudentWorld* m_world;
@@ -50,7 +49,7 @@ class Projectile: public Actor
 public:
     Projectile(int id, int x, int y, StudentWorld* world, int direction);
     virtual ~Projectile();
-    virtual void doSomething();
+    virtual void doSomething() = 0;
     int getDirection() const;
     void setThisDirection(int dir);
 private:
@@ -122,9 +121,11 @@ class Alien: public Actor
 public:
     Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPlan, double travelSpeed, int score);
     virtual ~Alien();
-    void doSomething();
-    virtual void specializedAttack();
+    virtual void doSomething();
+    virtual void specializedAttack() = 0;
+    virtual void dropSomething() = 0;
     virtual int getHP() const;
+    virtual void setHP(int hp);
     void setFlightPlan(int length);
     int getFlightPlan() const;
     void setFlightDirection(int dir);
@@ -133,7 +134,6 @@ public:
     void setTravelSpeed(double speed);
     double getTravelSpeed() const;
     void sufferDamage(int hp);
-    virtual void setHP(int hp);
     virtual int getScore() const;
 private:
     double m_hp;
@@ -149,6 +149,7 @@ public:
     Smallgon(int x, int y, StudentWorld* world);
     virtual ~Smallgon();
     virtual void specializedAttack();
+    virtual void dropSomething();
 };
 
 class Smoregon: public Alien
@@ -175,7 +176,7 @@ public:
     Goodie(int x, int y, StudentWorld* world, int id);
     virtual ~Goodie();
     virtual void doSomething();
-    virtual void specialized();
+    virtual void specialized() = 0;
 };
 
 class ExtraLifeGoodie: public Goodie
