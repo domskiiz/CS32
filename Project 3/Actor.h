@@ -15,8 +15,6 @@ public:
     void setDead();
     bool isDamageable() const;
     StudentWorld* getWorld() const;
-    virtual void sufferDamage(int hp);
-    virtual int getHP() const;
     virtual int getScore() const;
 private:
     bool m_dead;
@@ -97,26 +95,37 @@ public:
     void specializedAttack();
 };
 
-class NachenBlaster: public Actor
+class Ship: public Actor
+{
+public:
+    Ship(int x, int y, StudentWorld* world, double hp, int id, double size, int depth);
+    virtual ~Ship();
+    virtual void doSomething() = 0;
+    virtual void sufferDamage(int hp);
+    virtual double getHP() const;
+    virtual void addHP(int hp);
+    virtual void setHP(int hp);
+private:
+    double m_hp;
+};
+
+class NachenBlaster: public Ship
 {
 public:
     NachenBlaster(StudentWorld* world);
     virtual ~NachenBlaster();
     virtual void doSomething();
-    void sufferDamage(int hp);
     void increaseHP(int hp);
-    virtual int getHP() const;
     int getCabbagePercent() const;
     int getNumTorpedoes() const;
     void setNumTorpedoes(int num);
     void decTorpedoes();
 private:
-    int m_hp;
     int m_cabbageEnergyPoints;
     int m_nachTorpedoes;
 };
 
-class Alien: public Actor
+class Alien: public Ship
 {
 public:
     Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPlan, double travelSpeed, int score);
@@ -124,8 +133,6 @@ public:
     virtual void doSomething();
     virtual void specializedAttack() = 0;
     virtual void dropSomething() = 0;
-    virtual int getHP() const;
-    virtual void setHP(int hp);
     void setFlightPlan(int length);
     int getFlightPlan() const;
     void setFlightDirection(int dir);
@@ -133,10 +140,8 @@ public:
     void decrementFlight();
     void setTravelSpeed(double speed);
     double getTravelSpeed() const;
-    void sufferDamage(int hp);
     virtual int getScore() const;
 private:
-    double m_hp;
     int m_flightPlan;
     int m_flightDirection;
     double m_travelSpeed;

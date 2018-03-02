@@ -166,8 +166,8 @@ bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
     vector<Actor*>::iterator p;
     for (p = m_actors.begin(); p != m_actors.end(); p++) {
         if (collisionOccurred(*p, colliding) && (*p)->isDamageable()) {
-            (*p)->sufferDamage(hp);
-            if ((*p)->getHP() < 0) {
+            static_cast<Ship*>(*p)->sufferDamage(hp);
+            if (static_cast<Ship*>(*p)->getHP() < 0) {
                 increaseScore((*p)->getScore());
                 (*p)->setDead();
                 static_cast<Alien*>(*p)->dropSomething();

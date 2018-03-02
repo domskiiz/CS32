@@ -17,6 +17,7 @@ const int       NACHENBLASTER_X = 0;
 const int       NACHENBLASTER_Y = 128;
 const double    NACHENBLASTER_SIZE = 1.0;
 const int       NACHENBLASTER_DEPTH = 0;
+const double    NACHENBLASTER_HP = 50;
 
 // PROJECTILE CONST
 const double    PROJECTILE_SIZE = 0.5;
@@ -75,14 +76,6 @@ bool Actor::isDamageable() const
 StudentWorld* Actor::getWorld() const
 {
     return m_world;
-}
-
-void Actor::sufferDamage(int hp)
-{ }
-
-int Actor::getHP() const
-{
-    return 0;
 }
 
 int Actor::getScore() const
@@ -289,22 +282,57 @@ void NachTorpedo::specializedAttack()
         return;
 }
 
+Ship::Ship(int x, int y, StudentWorld* world, double hp, int id, double size, int depth)
+:Actor(id,
+      x,
+      y,
+      DIRECTION_RIGHT,
+      size,
+      depth,
+      world,
+      true)
+{
+    m_hp = hp;
+}
+
+Ship::~Ship()
+{ }
+
+void Ship::sufferDamage(int hp)
+{
+    m_hp -= hp;
+}
+
+double Ship::getHP() const
+{
+    return m_hp;
+}
+
+void Ship::addHP(int hp)
+{
+    m_hp += hp;
+}
+
+void Ship::setHP(int hp)
+{
+    m_hp = hp;
+}
+
+
 
 //////////////////////////////////
 // NACHENBLASTER IMPLEMENTATION //
 //////////////////////////////////
 
 NachenBlaster::NachenBlaster(StudentWorld* world)
-: Actor(IID_NACHENBLASTER,
-        NACHENBLASTER_X,
-        NACHENBLASTER_Y,
-        DIRECTION_RIGHT,
-        NACHENBLASTER_SIZE,
-        NACHENBLASTER_DEPTH,
-        world,
-        true)
+: Ship(NACHENBLASTER_X,
+       NACHENBLASTER_Y,
+       world,
+       NACHENBLASTER_HP,
+       IID_NACHENBLASTER,
+       NACHENBLASTER_SIZE,
+       NACHENBLASTER_DEPTH)
 {
-    m_hp = 50;
     m_cabbageEnergyPoints = 30;
     m_nachTorpedoes = 0;
 }
@@ -361,24 +389,15 @@ void NachenBlaster::doSomething()
         m_cabbageEnergyPoints++;
 }
 
-void NachenBlaster::sufferDamage(int hp)
-{
-    m_hp -= hp;
-}
 
 void NachenBlaster::increaseHP(int hp)
 {
     if (getHP() + hp <= 50) {
-        m_hp += hp;
+        addHP(hp);
     } else {
         int add = 50 - getHP();
-        m_hp+= add;
+        addHP(add);
     }
-}
-
-int NachenBlaster::getHP() const
-{
-    return m_hp;
 }
 
 int NachenBlaster::getCabbagePercent() const
@@ -405,14 +424,13 @@ void NachenBlaster::decTorpedoes()
 // ALIEN IMPLEMENTATION //
 //////////////////////////
 Alien::Alien(int id, int x, int y, StudentWorld* world, double hp, int flightPlan, double travelSpeed, int score)
-: Actor(id,
-        x,
-        y,
-        DIRECTION_RIGHT,
-        ALIEN_SIZE,
-        ALIEN_DEPTH,
-        world,
-        true)
+: Ship(x,
+       y,
+       world,
+       hp,
+       id,
+       ALIEN_SIZE,
+       ALIEN_DEPTH)
 {
     m_flightPlan = flightPlan;
     m_travelSpeed = travelSpeed;
@@ -483,16 +501,6 @@ void Alien::decrementFlight()
     m_flightPlan--;
 }
 
-int Alien::getHP() const
-{
-    return m_hp;
-}
-
-void Alien::setHP(int hp)
-{
-    m_hp = hp;
-}
-
 void Alien::setFlightDirection(int dir)
 {
     m_flightDirection = dir;
@@ -511,11 +519,6 @@ void Alien::setTravelSpeed(double speed)
 double Alien::getTravelSpeed() const
 {
     return m_travelSpeed;
-}
-
-void Alien::sufferDamage(int hp)
-{
-    m_hp -= hp;
 }
 
 int Alien::getScore() const
