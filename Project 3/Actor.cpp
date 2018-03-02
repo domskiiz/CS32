@@ -55,8 +55,7 @@ Actor::Actor(int imageId, double startX, double startY, int startDirection, doub
 }
 
 Actor::~Actor()
-{
-}
+{ }
 
 bool Actor::isDead() const
 {
@@ -79,9 +78,7 @@ StudentWorld* Actor::getWorld() const
 }
 
 void Actor::sufferDamage(int hp)
-{
-    
-}
+{ }
 
 int Actor::getHP() const
 {
@@ -145,10 +142,20 @@ Explosion::~Explosion()
 void Explosion::doSomething()
 {
     setSize(1.5 * getSize());
-    if (count < 4)
-        count++;
+    if (getCount() < 4)
+        incCount();
     else
         setDead();
+}
+
+int Explosion::getCount() const
+{
+    return count;
+}
+
+void Explosion::incCount()
+{
+    count++;
 }
 
 ///////////////////////////////
@@ -343,13 +350,17 @@ void NachenBlaster::doSomething()
                     getWorld()->addActor(new Cabbage(getX() + 12, getY(), getWorld()));
                     getWorld()->playSound(SOUND_PLAYER_SHOOT);
                     m_cabbageEnergyPoints -= 5;
-                }
+                    break;
+                } else break;
             case KEY_PRESS_TAB:
                 if (m_nachTorpedoes > 0) {
                     getWorld()->addActor(new NachTorpedo(getX() + 12, getY(), getWorld()));
                     decTorpedoes();
                     getWorld()->playSound(SOUND_TORPEDO);
-                }
+                    break;
+                } else break;
+            default:
+                break;
         }
     }
     if (m_cabbageEnergyPoints < 30)

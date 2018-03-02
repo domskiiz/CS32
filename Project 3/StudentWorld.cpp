@@ -2,36 +2,22 @@
 #include "GameConstants.h"
 #include "Actor.h"
 #include <string>
-#include <iostream>
 #include <sstream>
 #include <iomanip>
 using namespace std;
 
-double euclideanDistance(int x1, int x2, int y1, int y2)
-{
-    double x = x1 - x2;
-    double y = y1 - y2;
-    return sqrt(pow(x, 2) + pow(y, 2));
-}
-
-bool collisionOccurred(Actor* one, Actor* two)
-{
-    return (euclideanDistance(one->getX(), two->getX(),
-                              one->getY(), two->getY())
-            < 0.75 * (one->getRadius() + two->getRadius()));
-}
+// helper funcitons
+double euclideanDistance(int x1, int x2, int y1, int y2);
+bool collisionOccurred(Actor* one, Actor* two);
 
 GameWorld* createStudentWorld(string assetDir)
 {
 	return new StudentWorld(assetDir);
 }
 
-// Students:  Add code to this file, StudentWorld.h, Actor.h and Actor.cpp
-
 StudentWorld::StudentWorld(string assetDir)
 : GameWorld(assetDir), m_numActors(0), m_aliensDestroyed(0)
-{
-}
+{ }
 
 StudentWorld::~StudentWorld()
 {
@@ -61,8 +47,10 @@ int StudentWorld::move()
             decLives();
             return GWSTATUS_PLAYER_DIED;
         }
-        if (m_aliensDestroyed == aliensMustBeDestroyed)
+        if (m_aliensDestroyed == aliensMustBeDestroyed) {
+            playSound(SOUND_FINISHED_LEVEL);
             return GWSTATUS_FINISHED_LEVEL;
+        }
     }
     // remove dead actors
     vector<Actor*>::iterator it;
@@ -100,16 +88,16 @@ int StudentWorld::move()
         m_numAliens++;
     }
     
+    // update display text
     ostringstream oss;
     oss.setf(ios::fixed);
     oss.precision(2);
-    oss << "Lives: " << getLives();
-    oss << setw(10) << "Health: " << (m_nachBlaster->getHP() * 2) << "%";
-    oss << setw(10) << "Score: " << getScore();
-    oss << setw(10) << "Level: " << getLevel();
-    oss << setw(12) << "Cabbages: " << m_nachBlaster->getCabbagePercent() << "%";
-    oss << setw(12
-            ) << "Torpedoes: " << m_nachBlaster->getNumTorpedoes();
+    oss << "Lives: " << getLives() << "  ";
+    oss << "Health: " << (m_nachBlaster->getHP() * 2) << "%  ";
+    oss << "Score: " << getScore() << "  ";
+    oss << "Level: " << getLevel() << "  ";
+    oss << "Cabbages: " << m_nachBlaster->getCabbagePercent() << "%  ";
+    oss << "Torpedoes: " << m_nachBlaster->getNumTorpedoes();
     setGameStatText(oss.str());
     
     return GWSTATUS_CONTINUE_GAME;
@@ -132,15 +120,15 @@ void StudentWorld::cleanUp()
     m_aliensDestroyed = 0;
 }
 
+NachenBlaster* StudentWorld::getNachBlaster() const
+{
+    return m_nachBlaster;
+}
+
 void StudentWorld::addActor(Actor* actor)
 {
     m_actors.push_back(actor);
     m_numActors++;
-}
-
-NachenBlaster* StudentWorld::getNachBlaster() const
-{
-    return m_nachBlaster;
 }
 
 int StudentWorld::getNumAliensDestroyed() const
@@ -158,6 +146,7 @@ void StudentWorld::decrementNumAliens()
     --m_numAliens;
 }
 
+// handles if a enemy projectile hits the NachenBlaster
 bool StudentWorld::hitNachBlaster(Actor* colliding, int hp)
 {
     vector<Actor*>::iterator p;
@@ -169,22 +158,10 @@ bool StudentWorld::hitNachBlaster(Actor* colliding, int hp)
         colliding->setDead();
         return true;
     }
-    
     return false;
 }
 
-bool StudentWorld::goodieReceived(Goodie* goodie)
-{
-    if (collisionOccurred(goodie, m_nachBlaster)) {
-        increaseScore(100);
-        goodie->setDead();
-        goodie->specialized();
-        playSound(SOUND_GOODIE);
-        return true;
-    }
-    return false;
-}
-
+// handles if a NachenBlaster Cabbage hits an alien ship
 bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
 {
     vector<Actor*>::iterator p;
@@ -209,6 +186,20 @@ bool StudentWorld::hitDamageableActors(Actor* colliding, int hp)
     return false;
 }
 
+// handles if the NachenBlaster recieves a goodie
+bool StudentWorld::goodieReceived(Goodie* goodie)
+{
+    if (collisionOccurred(goodie, m_nachBlaster)) {
+        increaseScore(100);
+        goodie->setDead();
+        goodie->specialized();
+        playSound(SOUND_GOODIE);
+        return true;
+    }
+    return false;
+}
+
+// handles if ships collide
 bool StudentWorld::shipCollision(Actor* alien, NachenBlaster* nach)
 {
     if (collisionOccurred(alien, nach)) {
@@ -226,4 +217,20 @@ bool StudentWorld::shipCollision(Actor* alien, NachenBlaster* nach)
         return true;
     }
     return false;
+}
+
+
+// helper function implementation
+double euclideanDistance(int x1, int x2, int y1, int y2)
+{
+    double x = x1 - x2;
+    double y = y1 - y2;
+    return sqrt(pow(x, 2) + pow(y, 2));
+}
+
+bool collisionOccurred(Actor* one, Actor* two)
+{
+    return (euclideanDistance(one->getX(), two->getX(),
+                              one->getY(), two->getY())
+            < 0.75 * (one->getRadius() + two->getRadius()));
 }

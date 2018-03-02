@@ -14,9 +14,9 @@ public:
     bool isDead() const;
     void setDead();
     bool isDamageable() const;
+    StudentWorld* getWorld() const;
     virtual void sufferDamage(int hp);
     virtual int getHP() const;
-    StudentWorld* getWorld() const;
     virtual int getScore() const;
     virtual void dropSomething();
 private:
@@ -39,26 +39,10 @@ public:
     Explosion(int x, int y, StudentWorld* world);
     virtual ~Explosion();
     virtual void doSomething();
-    int count;
-};
-
-class NachenBlaster: public Actor
-{
-public:
-    NachenBlaster(StudentWorld* world);
-    virtual ~NachenBlaster();
-    virtual void doSomething();
-    void sufferDamage(int hp);
-    void increaseHP(int hp);
-    virtual int getHP() const;
-    int getCabbagePercent() const;
-    int getNumTorpedoes() const;
-    void setNumTorpedoes(int num);
-    void decTorpedoes();
+    int getCount() const;
+    void incCount();
 private:
-    int m_hp;
-    int m_cabbageEnergyPoints;
-    int m_nachTorpedoes;
+    int count;
 };
 
 class Projectile: public Actor
@@ -112,6 +96,25 @@ public:
     NachTorpedo(int x, int y, StudentWorld* world);
     virtual ~NachTorpedo();
     void specializedAttack();
+};
+
+class NachenBlaster: public Actor
+{
+public:
+    NachenBlaster(StudentWorld* world);
+    virtual ~NachenBlaster();
+    virtual void doSomething();
+    void sufferDamage(int hp);
+    void increaseHP(int hp);
+    virtual int getHP() const;
+    int getCabbagePercent() const;
+    int getNumTorpedoes() const;
+    void setNumTorpedoes(int num);
+    void decTorpedoes();
+private:
+    int m_hp;
+    int m_cabbageEnergyPoints;
+    int m_nachTorpedoes;
 };
 
 class Alien: public Actor
