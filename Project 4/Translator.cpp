@@ -1,7 +1,7 @@
 #include "provided.h"
 #include <string>
 #include <list>
-#include <set>
+#include <queue>
 #include <cctype>
 #include <iostream>
 using namespace std;
@@ -16,7 +16,7 @@ public:
 private:
     struct Mapping  // helper struct
     {
-        Mapping()
+        Mapping()               // Construct non-modified mapping
         : plainAlphabet{ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                          'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
                          'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
@@ -27,7 +27,7 @@ private:
                         '?', '?' }
         {}
         
-        Mapping(char ca[26])
+        Mapping(char ca[26])    // Construct mapping with custom cipher
         : plainAlphabet{ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
             'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
             'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
@@ -46,36 +46,45 @@ TranslatorImpl::TranslatorImpl()
 : m_mappings(1)
 { }
 
-
-// TODO: GET THIS TO RUN IN O(1) TIME
 bool TranslatorImpl::pushMapping(string ciphertext, string plaintext)
 {
     // Check if ciphertext + plaintext not same length
     if (ciphertext.length() != plaintext.length())
         return false;
-    
+    // Make all letters uppercase
+    string upperCipher, upperPlain;
+    for (int i = 0; i < ciphertext.length(); i++) {
+        upperCipher += toupper(ciphertext[i]);
+        upperPlain += toupper(plaintext[i]);
+    }
     // Check if any of ciphertext already exists in mapping,
     // or plaintext doesn't already have something mapped to it
-    set<char> ciphertextExists;
+    queue<char> ciphertextExists;
     for (int i = 0; i < 26; i++) {
         if (m_mappings.front().cipherAlphabet[i] != '?')
-            ciphertextExists.insert(m_mappings.front().cipherAlphabet[i]);
+            ciphertextExists.push(m_mappings.front().cipherAlphabet[i]);
+    }
+    int s = ciphertextExists.size();
+    for (int i = 0; i < s; i++) {
+        char c = ciphertextExists.front();
+        ciphertextExists.pop();
+        for (int j = 0; j < ciphertext.size(); j++) {
+            if (c == upperCipher[j])
+                return false;
+        }
     }
     for (int i = 0; i < plaintext.length(); i++) {
-        if (ciphertextExists.count(ciphertext[i]) != 0)
-            return false;
-        int plaintextPos = plaintext[i] - 65;
+        int plaintextPos = upperPlain[i] - 65;
         if (m_mappings.front().cipherAlphabet[plaintextPos] != '?')
             return false;
     }
-    
     // Otherwise, make a new mapping and add it to the front of the list
     char newCipherAlphabet[26];
     for (int i = 0; i < 26; i++)
         newCipherAlphabet[i] = m_mappings.front().cipherAlphabet[i];
     for (int i = 0; i < ciphertext.length(); i++) {
-        int plaintextPos = plaintext[i] - 65;
-        newCipherAlphabet[plaintextPos] = ciphertext[i];
+        int plaintextPos = upperPlain[i] - 65;
+        newCipherAlphabet[plaintextPos] = upperCipher[i];
     }
     m_mappings.push_front(newCipherAlphabet);
     
