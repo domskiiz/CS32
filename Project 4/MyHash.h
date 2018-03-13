@@ -31,6 +31,8 @@ public:
       // C++11 syntax for preventing copying and assignment
     MyHash(const MyHash&) = delete;
     MyHash& operator=(const MyHash&) = delete;
+    // void printBucketContents() const;
+
 
 private:
     struct Node
@@ -43,7 +45,6 @@ private:
     Node**  buckets;
     int     m_numBuckets;
     int     m_numItems;
-    void printBucketContents() const;
 };
 
 template<typename KeyType, typename ValueType>
@@ -61,6 +62,8 @@ MyHash<KeyType, ValueType>::MyHash(double maxLoadFactor)
     buckets = new Node*[m_numBuckets];
     for (int i = 0; i < DEFAULT_MAX_BUCKETS; i++)
         buckets[i] = nullptr;
+    
+    m_numItems = 0;
 }
 
 template<typename KeyType, typename ValueType>
@@ -195,13 +198,14 @@ double MyHash<KeyType, ValueType>::getLoadFactor() const
 //template<typename KeyType, typename ValueType>
 //void MyHash<KeyType, ValueType>::printBucketContents() const
 //{
+//    int numNodes = 0;
 //    for (int i = 0; i < m_numBuckets; i++) {
-//        cout << "In bucket " << i << endl;
 //        Node* p = buckets[i];
 //        while (p != nullptr) {
-//            cout << "key: " << p->key << " value: " << p->value << endl;
 //            p = p->next;
+//            numNodes++;
 //        }
 //    }
+//    cout << "I iterated through " << numNodes << " nodes" << endl;
 //}
 #endif // MYHASH_INCLUDED
