@@ -62,7 +62,11 @@ bool WordListImpl::contains(string word) const
     string pattern = getLetterPattern(word);
     if (stringsToPatterns.find(pattern) == nullptr)
         return false;
-    return true;
+    vector<string> candidates = *stringsToPatterns.find(pattern);
+    for (auto it = candidates.begin(); it != candidates.end(); it++)
+        if (*it == word)
+            return true;
+    return false;
 }
 
 vector<string> WordListImpl::findCandidates(string cipherWord, string currTranslation) const
@@ -83,7 +87,7 @@ vector<string> WordListImpl::findCandidates(string cipherWord, string currTransl
     }
     // Get letter pattern for cipher word
     string pattern = getLetterPattern(cipherWord);
-    
+
     // Return strings in word list with matching letter patterns
     if (stringsToPatterns.find(pattern) == nullptr)
         return empty;
@@ -98,20 +102,24 @@ vector<string> WordListImpl::findCandidates(string cipherWord, string currTransl
                 if (isalpha(currTranslation[j])) {
                     if (tolower(currTranslation[j]) != tolower(candidate[j]))
                         addCandidate = false;
-                    if (!(isalpha(cipherWord[j])))
+                    if (!(isalpha(cipherWord[j]))) {
                         return empty;
+                    }
                 }
                 if (currTranslation[j] == '?') {
-                    if (!isalpha(cipherWord[j]) || !isalpha(candidate[j]))
+                    if (!isalpha(cipherWord[j])) {
                         return empty;
+                    }
                 }
                 if (currTranslation[j] == 39) {
-                    if (cipherWord[j] != 39 || candidate[j] != 39)
+                    if (cipherWord[j] != 39 || candidate[j] != 39) {
                         return empty;
+                    }
                 }
             }
-            if (addCandidate)
+            if (addCandidate) {
                 candidates.push_back(candidate);
+            }
         }
     }
     // Return the vector of any strings that could be the translation of cipherWord
