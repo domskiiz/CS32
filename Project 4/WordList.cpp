@@ -20,24 +20,6 @@ private:
 
 };
 
-string WordListImpl::getLetterPattern(string word) const
-{
-    string pattern;
-    int count = 0;
-    MyHash<char, char> storePattern;
-    for (int i = 0; i < word.length(); i++) {
-        if (storePattern.find(tolower(word[i])) == nullptr) {
-            storePattern.associate(tolower(word[i]), '0' + count);
-            pattern += *storePattern.find(tolower(word[i]));
-            count++;
-        }
-        else
-            pattern += *storePattern.find(tolower(word[i]));
-    }
-    return pattern;
-}
-
-
 bool WordListImpl::loadWordList(string filename)
 {
     // Clear the hash table each time this is called
@@ -77,27 +59,81 @@ bool WordListImpl::loadWordList(string filename)
 
 bool WordListImpl::contains(string word) const
 {
-    string constCaseWord;
-    for (int i = 0; i < word.length(); i++)
-        constCaseWord += tolower(word[i]);
-    if (stringsToPatterns.find(constCaseWord) == nullptr)
+    string pattern = getLetterPattern(word);
+    if (stringsToPatterns.find(pattern) == nullptr)
         return false;
-    
     return true;
 }
 
 vector<string> WordListImpl::findCandidates(string cipherWord, string currTranslation) const
 {
-    string pattern = getLetterPattern(cipherWord);
+    // Create an empty vector and a vector of candidate strings
     vector<string> candidates;
-    if (stringsToPatterns.find(pattern) == nullptr) {
-        return candidates;
+    vector<string> empty;
+    
+    // Check that translation + cipher are same length
+    if (cipherWord.length() != currTranslation.length())
+        return empty;
+    // Check that cipherword and translation only have letters, apostrophes, and question marks
+    for (int i = 0; i < cipherWord.length(); i++) {
+        if (!isalpha(cipherWord[i]) && cipherWord[i] != 39)
+            return empty;
+        if (!isalpha(currTranslation[i]) && currTranslation[i] != 39 && currTranslation[i] != '?')
+            return empty;
     }
+    // Get letter pattern for cipher word
+    string pattern = getLetterPattern(cipherWord);
+    
+    // Return strings in word list with matching letter patterns
+    if (stringsToPatterns.find(pattern) == nullptr)
+        return empty;
     else {
-        for (int i = 0; i < stringsToPatterns.find(pattern)->size(); i++)
-            candidates.push_back(stringsToPatterns.find(pattern)->operator[](i));
+        // Parse through each of the i strings returned in vector of possible words
+        // that map to that letter pattern
+        for (int i = 0; i < stringsToPatterns.find(pattern)->size(); i++) {
+            bool addCandidate = true;
+            string candidate = stringsToPatterns.find(pattern)->operator[](i);
+            // Rule out possible strings not consistent with current translation
+            for (int j = 0; j < candidate.length(); j++) {
+                if (isalpha(currTranslation[j])) {
+                    if (tolower(currTranslation[j]) != tolower(candidate[j]))
+                        addCandidate = false;
+                    if (!(isalpha(cipherWord[j])))
+                        return empty;
+                }
+                if (currTranslation[j] == '?') {
+                    if (!isalpha(cipherWord[j]) || !isalpha(candidate[j]))
+                        return empty;
+                }
+                if (currTranslation[j] == 39) {
+                    if (cipherWord[j] != 39 || candidate[j] != 39)
+                        return empty;
+                }
+            }
+            if (addCandidate)
+                candidates.push_back(candidate);
+        }
     }
+    // Return the vector of any strings that could be the translation of cipherWord
+    // consistent with the current translation
     return candidates;
+}
+
+string WordListImpl::getLetterPattern(string word) const
+{
+    string pattern;
+    int count = 0;
+    MyHash<char, char> storePattern;
+    for (int i = 0; i < word.length(); i++) {
+        if (storePattern.find(tolower(word[i])) == nullptr) {
+            storePattern.associate(tolower(word[i]), '0' + count);
+            pattern += *storePattern.find(tolower(word[i]));
+            count++;
+        }
+        else
+            pattern += *storePattern.find(tolower(word[i]));
+    }
+    return pattern;
 }
 
 //***** hash functions for string, int, and char *****
