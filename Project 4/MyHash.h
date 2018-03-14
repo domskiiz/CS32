@@ -31,7 +31,6 @@ public:
       // C++11 syntax for preventing copying and assignment
     MyHash(const MyHash&) = delete;
     MyHash& operator=(const MyHash&) = delete;
-    // void printBucketContents() const;
 
 
 private:
@@ -201,11 +200,12 @@ double MyHash<KeyType, ValueType>::getLoadFactor() const
 //    int numNodes = 0;
 //    for (int i = 0; i < m_numBuckets; i++) {
 //        Node* p = buckets[i];
+//        cout << "in bucket " << i << endl;
 //        while (p != nullptr) {
+//                cout << p->key << " " << p->value[i] << endl;
 //            p = p->next;
 //            numNodes++;
 //        }
 //    }
-//    cout << "I iterated through " << numNodes << " nodes" << endl;
 //}
 #endif // MYHASH_INCLUDED
