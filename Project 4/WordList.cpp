@@ -11,18 +11,32 @@ using namespace std;
 class WordListImpl
 {
 public:
-    WordListImpl();
     bool loadWordList(string filename);
     bool contains(string word) const;
     vector<string> findCandidates(string cipherWord, string currTranslation) const;
 private:
     MyHash<string, vector<string>> stringsToPatterns;
+    string getLetterPattern(string word) const;
+
 };
 
-WordListImpl::WordListImpl()
+string WordListImpl::getLetterPattern(string word) const
 {
-
+    string pattern;
+    int count = 0;
+    MyHash<char, char> storePattern;
+    for (int i = 0; i < word.length(); i++) {
+        if (storePattern.find(tolower(word[i])) == nullptr) {
+            storePattern.associate(tolower(word[i]), '0' + count);
+            pattern += *storePattern.find(tolower(word[i]));
+            count++;
+        }
+        else
+            pattern += *storePattern.find(tolower(word[i]));
+    }
+    return pattern;
 }
+
 
 bool WordListImpl::loadWordList(string filename)
 {
@@ -49,18 +63,7 @@ bool WordListImpl::loadWordList(string filename)
         if (insertIntoMap) {
             // Create letter pattern and store in hash table
             vector<string> words;
-            string pattern;
-            int count = 0;
-            MyHash<char, char> storePattern;
-            for (int i = 0; i < lowerCaseWord.length(); i++) {
-                if (storePattern.find(lowerCaseWord[i]) == nullptr) {
-                    storePattern.associate(lowerCaseWord[i], '0' + count);
-                    pattern += *storePattern.find(lowerCaseWord[i]);
-                    count++;
-                }
-                else
-                    pattern += *storePattern.find(lowerCaseWord[i]);
-            }
+            string pattern = getLetterPattern(lowerCaseWord);
             if (stringsToPatterns.find(pattern) == nullptr) {
                 words.push_back(lowerCaseWord);
                 stringsToPatterns.associate(pattern, words);
@@ -85,18 +88,7 @@ bool WordListImpl::contains(string word) const
 
 vector<string> WordListImpl::findCandidates(string cipherWord, string currTranslation) const
 {
-    string pattern;
-    int count = 0;
-    MyHash<char, char> storePattern;
-    for (int i = 0; i < cipherWord.length(); i++) {
-        if (storePattern.find(tolower(cipherWord[i])) == nullptr) {
-            storePattern.associate(tolower(cipherWord[i]), '0' + count);
-            pattern += *storePattern.find(tolower(cipherWord[i]));
-            count++;
-        }
-        else
-            pattern += *storePattern.find(tolower(cipherWord[i]));
-    }
+    string pattern = getLetterPattern(cipherWord);
     vector<string> candidates;
     if (stringsToPatterns.find(pattern) == nullptr) {
         return candidates;
