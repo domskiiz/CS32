@@ -62,9 +62,12 @@ bool WordListImpl::contains(string word) const
     string pattern = getLetterPattern(word);
     if (stringsToPatterns.find(pattern) == nullptr)
         return false;
+    string lowerCaseWord;
+    for (int i = 0; i < word.size(); i++)
+        lowerCaseWord += tolower(word[i]);
     vector<string> candidates = *stringsToPatterns.find(pattern);
     for (auto it = candidates.begin(); it != candidates.end(); it++)
-        if (*it == word)
+        if (*it == lowerCaseWord)
             return true;
     return false;
 }

@@ -18,7 +18,6 @@ public:
     void associate(const KeyType& key, const ValueType& value);
     int getNumItems() const;
     double getLoadFactor() const;
-
       // for a map that can't be modified, return a pointer to const ValueType
     const ValueType* find(const KeyType& key) const;
 
@@ -197,14 +196,13 @@ double MyHash<KeyType, ValueType>::getLoadFactor() const
 //template<typename KeyType, typename ValueType>
 //void MyHash<KeyType, ValueType>::printBucketContents() const
 //{
-//    int numNodes = 0;
 //    for (int i = 0; i < m_numBuckets; i++) {
 //        Node* p = buckets[i];
-//        cout << "in bucket " << i << endl;
 //        while (p != nullptr) {
+//            cout << "in bucket " << i << endl;
+//            for (int i = 0; i < (p->value).size(); i++)
 //                cout << p->key << " " << p->value[i] << endl;
 //            p = p->next;
-//            numNodes++;
 //        }
 //    }
 //}
