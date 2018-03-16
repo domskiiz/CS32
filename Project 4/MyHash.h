@@ -91,6 +91,7 @@ void MyHash<KeyType, ValueType>::reset()
     }
     delete[] buckets;
     
+    m_numItems = 0;
     m_numBuckets = DEFAULT_MAX_BUCKETS;
     buckets = new Node*[m_numBuckets];
     for (int i = 0; i < m_numBuckets; i++)
