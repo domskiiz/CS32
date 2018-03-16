@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -169,6 +170,7 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
             }
         }
     }
+    sort(possibleTranslations.begin(), possibleTranslations.end());
     return possibleTranslations;
 
 }
