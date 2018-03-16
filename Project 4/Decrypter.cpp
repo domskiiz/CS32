@@ -140,6 +140,7 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
                         continue;
                     else if (fullyTranslatedIndexes.size() == cipherTokens.size()) {
                         possibleTranslations.push_back(partiallyTranslated);
+                        sort(possibleTranslations.begin(), possibleTranslations.end());
                         m_translator.popMapping();
                         continue;
                     }
@@ -147,13 +148,14 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
                         crack(ciphertext);
                 }
                 m_translator.popMapping();
+                sort(possibleTranslations.begin(), possibleTranslations.end());
                 return possibleTranslations;
             }
         }
     }
     sort(possibleTranslations.begin(), possibleTranslations.end());
     return possibleTranslations;
-
+    
 }
 
 //******************** Decrypter functions ************************************
