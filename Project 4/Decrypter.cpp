@@ -41,7 +41,6 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
     for (auto it = cipherTokens.begin(); it != cipherTokens.end(); it++) {
         string baseTranslation;
         baseTranslation = m_translator.getTranslation(*it);
-        cout << "translation in recursion: " << baseTranslation << endl;
         translatedTokens.push_back(baseTranslation);
     }
     
@@ -73,9 +72,7 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
             // Iterate through cipher words with that priority
             for (auto it = cipherWords.begin(); it != cipherWords.end(); it++) {
                 string cipherWord = *it;
-                cout << "cipherWord " << *it << endl;
                 string translatedWord = m_translator.getTranslation(cipherWord);
-                cout << "translation of cipherWord: " << translatedWord << endl;
                 
                 // STEP 4: CREATE COLLECTION OF CANDIDATES
                 vector<string> candidates;
@@ -83,20 +80,12 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
                 
                 // STEP 5: IF NO CANDIDATES THROW OUT MAPPING AND RETURN
                 if (candidates.size() == 0) {
-                    cout << "THERE WERE NO CANDIDATES " << endl;
                     m_translator.popMapping();
                     return possibleTranslations;
                 }
                 
-                cout << "candidates for word " << cipherWord << ": ";
-                for (auto c = candidates.begin(); c != candidates.end(); c++) {
-                    cout << *c << ", ";
-                }
-                cout << endl;
-                
                 // STEP 6: FOR EACH CANDIDATE IN CANDIDATES
                 for (auto c = candidates.begin(); c != candidates.end(); c++) {
-                    cout << "candidate: " << *c << endl;
                     
                     // STEP 6A: Create mapping based on candidate
                     string cipherMapping, translatedMapping;
@@ -112,20 +101,16 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
                         }
                         translatedMapping += tolower((*c)[i]);
                         cipherMapping += tolower(cipherWord[i]);
-                        cout << "MAPPINGS: " << translatedMapping << " " << cipherMapping << endl;
                     }
                     if (m_translator.pushMapping(cipherMapping, translatedMapping)) {
-                        cout << "Mapping pushed" << endl;
                     } else {
                         // If mapping won't insert
-                        cout << "This word wont work" << endl;
                         continue;
                     }
                     
                     // STEP 6B: TRANSLATE ENTIRE MESSAGE USING NEW MAPPING
                     string partiallyTranslated;
                     partiallyTranslated = m_translator.getTranslation(ciphertext);
-                    cout << partiallyTranslated << endl;
                     vector<string> partiallyTranslatedTokens = m_tokenizer.tokenize(partiallyTranslated);
                     
                     // STEP 6C: CHECK IF ALL FULLY TRANSLATED WORDS EXIST IN WORD LIST
@@ -138,7 +123,6 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
                                 fullyTranslated = false;
                         }
                         if (fullyTranslated) {
-                            cout << partiallyTranslatedTokens[i] << " fully translated" << endl;
                             fullyTranslatedIndexes.push_back(i);
                         }
                     }
@@ -147,7 +131,6 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
                     for (int i = 0; i < fullyTranslatedIndexes.size(); i++) {
                         int index = fullyTranslatedIndexes[i];
                         if (!m_wordlist.contains(partiallyTranslatedTokens[index])) {
-                            cout << partiallyTranslatedTokens[index] << " word not in list" << endl;
                             m_translator.popMapping();
                             throwAwayCandidate = true;
                             break;
@@ -156,8 +139,6 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
                     if (throwAwayCandidate)
                         continue;
                     else if (fullyTranslatedIndexes.size() == cipherTokens.size()) {
-                        cout << "HERE!!!" << endl;
-                        cout << partiallyTranslated << endl;
                         possibleTranslations.push_back(partiallyTranslated);
                         m_translator.popMapping();
                         continue;
