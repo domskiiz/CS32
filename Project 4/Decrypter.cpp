@@ -104,13 +104,13 @@ vector<string> DecrypterImpl::crack(const string& ciphertext)
                         string cipherWordCharAsString, translatedCharAsString;
                         ss << cipherWord[i];
                         ss >> cipherWordCharAsString;
-                        bb << (*c)[i];
-                        bb >> translatedCharAsString;
+                        char s = tolower(m_translator.getTranslation(cipherWordCharAsString)[0]);
                         // If mapping already exists for that letter, do nothing
-                        if (m_translator.getTranslation(cipherWordCharAsString) == translatedCharAsString)
+                        if (s == tolower((*c)[i])) {
                             continue;
-                        translatedMapping += (*c)[i];
-                        cipherMapping += cipherWord[i];
+                        }
+                        translatedMapping += tolower((*c)[i]);
+                        cipherMapping += tolower(cipherWord[i]);
                         cout << "MAPPINGS: " << translatedMapping << " " << cipherMapping << endl;
                     }
                     if (m_translator.pushMapping(cipherMapping, translatedMapping)) {
